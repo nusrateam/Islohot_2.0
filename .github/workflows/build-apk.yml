@@ -30,49 +30,18 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
       - name: Install Dependencies
         run: npm install
 
-      - name: Initialize Android Project & Enable Autoplay
+      - name: Initialize Android Platform
         run: |
-          if [ ! -f "android/build.gradle" ]; then
-            mkdir -p temp_res
-            if [ -d "android/app/src/main/res" ]; then
-              cp -r android/app/src/main/res temp_res/
-            fi
-            rm -rf android
-            npx cap add android
-            if [ -d "temp_res/res" ]; then
-              cp -r temp_res/res/* android/app/src/main/res/
-            fi
-            rm -rf temp_res
-          fi
+          npx cap add android
+          cp -r custom_android/res/* android/app/src/main/res/
+          cp custom_android/MainActivity.java android/app/src/main/java/uz/islohot/app/MainActivity.java
           npx cap sync android
-          MAIN_ACTIVITY="android/app/src/main/java/uz/islohot/app/MainActivity.java"
-          if [ -f "$MAIN_ACTIVITY" ]; then
-            cat << 'EOF' > "$MAIN_ACTIVITY"
-package uz.islohot.app;
-
-import android.os.Bundle;
-import android.webkit.WebSettings;
-import com.getcapacitor.BridgeActivity;
-
-public class MainActivity extends BridgeActivity {
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        try {
-            if (this.bridge != null && this.bridge.getWebView() != null) {
-                WebSettings settings = this.bridge.getWebView().getSettings();
-                settings.setMediaPlaybackRequiresUserGesture(false);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-}
-EOF
-          fi
 
       - name: Build Debug APK
         run: |
