@@ -649,10 +649,17 @@ function renderHeader() {
   const dayBadge = document.getElementById('current-day-badge');
   const headerProgress = document.getElementById('header-progress-text');
   const progressBar = document.getElementById('header-progress-bar');
+  const headerSeansBadge = document.getElementById('header-seans-title-badge');
 
   if (activeCycles.length === 0 || !activeCycle) {
     const isBrandNew = (!appState.cycles || appState.cycles.length === 0);
-    if (dayBadge) dayBadge.innerText = isBrandNew ? 'Seans ochilmagan' : 'Seanslar yakunlangan';
+    if (dayBadge) {
+      dayBadge.innerText = isBrandNew ? "Seans yo'q" : 'Tugagan';
+      dayBadge.title = isBrandNew ? "Hali hech qanday seans ochilmagan" : "Barcha seanslar yakunlangan";
+    }
+    if (headerSeansBadge) {
+      headerSeansBadge.innerText = isBrandNew ? 'Seans ochilmagan' : 'Barcha seanslar yakunlangan';
+    }
     if (headerProgress) headerProgress.innerText = isBrandNew ? 'Yangi seans boshlang' : 'Faol seans mavjud emas';
     if (progressBar) progressBar.style.width = '0%';
     const progressContainer = document.getElementById('header-progress-container');
@@ -664,7 +671,13 @@ function renderHeader() {
   const totalDays = activeCycle.totalDays || 40;
 
   if (dayBadge) {
-    dayBadge.innerText = `${cycleTitle} · ${appState.currentDay}/${totalDays}-kun`;
+    dayBadge.innerText = `${appState.currentDay}/${totalDays}-kun`;
+    dayBadge.title = `${cycleTitle} (${appState.currentDay}/${totalDays}-kun)`;
+  }
+
+  if (headerSeansBadge) {
+    headerSeansBadge.innerText = `${cycleTitle} · Bugungi reja`;
+    headerSeansBadge.title = `${cycleTitle} (Jami ${totalDays} kunlik)`;
   }
 
   // Umumiy hisob
