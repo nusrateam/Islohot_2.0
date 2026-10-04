@@ -161,30 +161,13 @@
 
     <!-- Top App Header -->
     <header class="bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-800 text-white pt-safe px-5 pb-5 rounded-b-[2rem] shadow-lg sticky top-0 z-40">
-      <div class="flex items-center justify-between pt-3 pb-2">
-        <div class="flex items-center gap-2.5">
-          <div class="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 overflow-hidden shadow-sm shrink-0">
-            <img src="icon.png" alt="Logo" class="w-full h-full object-cover">
-          </div>
-          <div>
-            <h1 class="font-extrabold text-sm tracking-tight leading-tight text-emerald-50">Alloh Roziligiga Erishish Uchun</h1>
-            <p class="text-xs text-emerald-100 font-medium">Ma'naviy va jismoniy harakat</p>
-          </div>
+      <div class="flex items-center gap-3 pt-3 pb-2">
+        <div class="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 overflow-hidden shadow-sm shrink-0">
+          <img src="icon.png" alt="Logo" class="w-full h-full object-cover">
         </div>
-
-        <div class="flex items-center gap-2">
-          <!-- Profile & Reminder button -->
-          <button type="button" onclick="openProfileModal()" class="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-white/10 hover:bg-white/20 transition-colors flex items-center justify-center cursor-pointer" title="Profil va Eslatmalar" aria-label="Profil va Eslatmalar">
-            <i data-feather="user" class="w-4 h-4 text-emerald-100" aria-hidden="true"></i>
-          </button>
-          <!-- Day badge -->
-          <div id="current-day-badge" class="px-2.5 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-xs font-bold text-white tracking-wide shrink-0 whitespace-nowrap text-center" role="status" aria-live="polite">
-            1-kun
-          </div>
-          <!-- Dark mode toggle -->
-          <button type="button" id="dark-mode-toggle-btn" onclick="toggleDarkMode()" class="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-white/10 hover:bg-white/20 transition-colors flex items-center justify-center cursor-pointer" aria-label="Qorong'i rejimni almashtirish" aria-pressed="false">
-            <i data-feather="moon" class="w-4 h-4 text-emerald-100" aria-hidden="true"></i>
-          </button>
+        <div class="flex-1 min-w-0">
+          <h1 class="font-extrabold text-sm tracking-tight leading-tight text-emerald-50 truncate">Alloh Roziligiga Erishish Uchun</h1>
+          <p class="text-xs text-emerald-100 font-medium">Ma'naviy va jismoniy harakat</p>
         </div>
       </div>
 
@@ -618,6 +601,20 @@
                 🧕 Ayol
               </button>
             </div>
+          </div>
+
+          <!-- Mavzu: Tungi va kunduzgi rejim (Dark / Light mode) -->
+          <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-700/60 flex items-center justify-between">
+            <div>
+              <div class="text-xs font-bold text-slate-800 dark:text-white flex items-center gap-1.5">
+                <span id="settings-theme-icon">🌙</span> <span id="settings-theme-title">Tungi rejim</span>
+              </div>
+              <div class="text-xs text-slate-600 dark:text-slate-400" id="settings-theme-desc">Qorong'i yoki yorug' mavzuni tanlang</div>
+            </div>
+            <button type="button" id="settings-dark-mode-btn" onclick="toggleDarkMode()" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm" aria-label="Tungi yoki kunduzgi rejimni almashtirish" aria-pressed="false">
+              <i data-feather="moon" class="w-3.5 h-3.5" id="settings-theme-feather" aria-hidden="true"></i>
+              <span id="settings-theme-btn-text">Tungi rejim</span>
+            </button>
           </div>
         </div>
 

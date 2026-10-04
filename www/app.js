@@ -1784,7 +1784,22 @@ function finishCycleAndShowResults(cycleId) {
     return;
   }
 
+  const isTargetActive = (targetCycle.status === 'active');
   const totalDays = targetCycle.totalDays || 40;
+  const currentDay = targetCycle.currentDay || appState.currentDay || 1;
+  const remainingDays = totalDays - currentDay;
+
+  // Agar seans hali yakunlanmagan bo'lsa (muddatidan oldin tugatmoqchi bo'lsa), ogohlantirish so'rovi chiqarish
+  if (isTargetActive && remainingDays > 0) {
+    const cycleTitle = targetCycle.title || `${targetCycle.cycleNumber}-seans`;
+    const confirmed = confirm(
+      `Seans tugashiga yana ${remainingDays} kun bor.\n\nHaqiqatdan ham ushbu seansni muddatidan oldin yakunlamoqchimisiz?`
+    );
+    if (!confirmed) {
+      return;
+    }
+  }
+
   const habits = targetCycle.habits || appState.habits;
   const totalPossible = habits.length * totalDays;
   const matrix = targetCycle.matrix || appState.matrix;
@@ -3704,13 +3719,39 @@ function applyDarkMode() {
   } else {
     document.documentElement.classList.remove('dark');
   }
+
+  // Headerdagi eski tugma (agar mavjud bo'lsa)
   const btn = document.getElementById('dark-mode-toggle-btn');
   if (btn) {
     btn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
     btn.setAttribute('aria-label', isDark ? "Yorug' rejimga o'tish" : "Qorong'i rejimga o'tish");
     btn.innerHTML = `<i data-feather="${isDark ? 'sun' : 'moon'}" class="w-4 h-4 text-emerald-100" aria-hidden="true"></i>`;
-    featherIconsReplace();
   }
+
+  // Sozlamalar bo'limidagi yangi tungi rejim kartasi
+  const settingsBtn = document.getElementById('settings-dark-mode-btn');
+  const settingsIcon = document.getElementById('settings-theme-icon');
+  const settingsTitle = document.getElementById('settings-theme-title');
+  const settingsDesc = document.getElementById('settings-theme-desc');
+
+  if (settingsBtn) {
+    settingsBtn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+    if (isDark) {
+      if (settingsIcon) settingsIcon.innerText = '☀️';
+      if (settingsTitle) settingsTitle.innerText = 'Kunduzgi rejim';
+      if (settingsDesc) settingsDesc.innerText = "Yorug' mavzuga o'tish uchun bosing";
+      settingsBtn.className = "px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm";
+      settingsBtn.innerHTML = `<i data-feather="sun" class="w-3.5 h-3.5" aria-hidden="true"></i><span>Kunduzgi rejim</span>`;
+    } else {
+      if (settingsIcon) settingsIcon.innerText = '🌙';
+      if (settingsTitle) settingsTitle.innerText = 'Tungi rejim';
+      if (settingsDesc) settingsDesc.innerText = "Qorong'i (tungi) mavzuga o'tish";
+      settingsBtn.className = "px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm";
+      settingsBtn.innerHTML = `<i data-feather="moon" class="w-3.5 h-3.5" aria-hidden="true"></i><span>Tungi rejim</span>`;
+    }
+  }
+
+  featherIconsReplace();
 }
 
 function toggleDarkMode() {
