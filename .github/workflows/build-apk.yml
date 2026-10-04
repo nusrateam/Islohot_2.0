@@ -1,4 +1,4 @@
-name: Build Islohot Android APK
+name: Build Islohot Android APK & Play Store AAB
 
 on:
   push:
@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   build:
-    name: Build Android APK
+    name: Build Android APK and AAB
     runs-on: ubuntu-latest
 
     steps:
@@ -40,16 +40,46 @@ jobs:
           cp custom_android/MainActivity.java android/app/src/main/java/uz/islohot/app/MainActivity.java
           npx cap sync android
 
-      - name: Build Debug APK
+      - name: Build Debug APK & Release AAB for Play Store
         run: |
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug
+          ./gradlew bundleRelease
+          
+          KEYSTORE_PATH="../custom_android/islohot-release.jks"
+          if [ ! -f "$KEYSTORE_PATH" ]; then
+            keytool -genkeypair -v -keystore "$KEYSTORE_PATH" -keyalg RSA -keysize 2048 -validity 10000 -alias islohot -dname "CN=Islohot, OU=Mobile, O=NusraTeam, L=Tashkent, C=UZ" -storepass islohot2026 -keypass islohot2026
+          fi
+          
+          AAB_FILE=$(find app/build/outputs/bundle/release/ -name "*.aab" | head -n 1)
+          echo "Found AAB: $AAB_FILE"
+          jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore "$KEYSTORE_PATH" -storepass islohot2026 "$AAB_FILE" islohot
+          
+          cp "$AAB_FILE" ../Islohot-App-v2.1.aab
+          cp app/build/outputs/apk/debug/app-debug.apk ../Islohot-App-v2.1.apk
+          cp "$KEYSTORE_PATH" ../islohot-release.jks
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Islohot-App-v2
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: Islohot-App-v2-apk
+          path: Islohot-App-v2.1.apk
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload Play Store AAB Bundle Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Islohot-App-v2-playstore-aab
+          path: Islohot-App-v2.1.aab
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload Release Keystore Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: islohot-release-keystore
+          path: islohot-release.jks
           if-no-files-found: error
           retention-days: 30
