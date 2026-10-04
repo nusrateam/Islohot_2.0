@@ -1,0 +1,85 @@
+name: Build Islohot Android APK
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Initialize Android Project & Enable Autoplay
+        run: |
+          if [ ! -f "android/build.gradle" ]; then
+            mkdir -p temp_res
+            if [ -d "android/app/src/main/res" ]; then
+              cp -r android/app/src/main/res temp_res/
+            fi
+            rm -rf android
+            npx cap add android
+            if [ -d "temp_res/res" ]; then
+              cp -r temp_res/res/* android/app/src/main/res/
+            fi
+            rm -rf temp_res
+          fi
+          npx cap sync android
+          MAIN_ACTIVITY="android/app/src/main/java/uz/islohot/app/MainActivity.java"
+          if [ -f "$MAIN_ACTIVITY" ]; then
+            cat << 'EOF' > "$MAIN_ACTIVITY"
+package uz.islohot.app;
+
+import android.os.Bundle;
+import android.webkit.WebSettings;
+import com.getcapacitor.BridgeActivity;
+
+public class MainActivity extends BridgeActivity {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        try {
+            if (this.bridge != null && this.bridge.getWebView() != null) {
+                WebSettings settings = this.bridge.getWebView().getSettings();
+                settings.setMediaPlaybackRequiresUserGesture(false);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+EOF
+          fi
+
+      - name: Build Debug APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Islohot-App-v2
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 30

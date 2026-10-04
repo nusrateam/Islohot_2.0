@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="uz" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Alloh Roziligi - Islohot</title>
+  
+  <!-- PWA Meta Tags -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="icon.png">
+  <link rel="apple-touch-icon" href="icon.png">
+  <meta name="theme-color" content="#064e3b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Islohot">
+
+  <!-- Tailwind CSS (Offline lokal, CDN zaxirasi bilan) -->
+  <script src="tailwind.min.js"></script>
+  <script>
+    function applyTailwindConfig() {
+      if (window.tailwind) {
+        window.tailwind.config = {
+          darkMode: 'class',
+          theme: {
+            extend: {
+              colors: {
+                brand: {
+                  50: '#ecfdf5',
+                  100: '#d1fae5',
+                  500: '#10b981',
+                  600: '#059669',
+                  700: '#047857',
+                  800: '#065f46',
+                  900: '#064e3b',
+                  950: '#022c22',
+                }
+              }
+            }
+          }
+        };
+      }
+    }
+
+    if (!window.tailwind) {
+      const twScript = document.createElement('script');
+      twScript.src = 'https://cdn.tailwindcss.com';
+      twScript.onload = applyTailwindConfig;
+      document.head.appendChild(twScript);
+    } else {
+      applyTailwindConfig();
+    }
+  </script>
+
+  <!-- Feather Icons & Canvas Confetti (Offline lokal, CDN zaxirasi bilan) -->
+  <script src="feather.min.js"></script>
+  <script>
+    if (!window.feather) {
+      const feScript = document.createElement('script');
+      feScript.src = 'https://unpkg.com/feather-icons';
+      document.head.appendChild(feScript);
+    }
+  </script>
+  <script src="confetti.min.js"></script>
+  <script>
+    if (!window.confetti) {
+      const cfScript = document.createElement('script');
+      cfScript.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js';
+      document.head.appendChild(cfScript);
+    }
+  </script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css?v=8.0">
+</head>
+<body class="bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex justify-center selection:bg-emerald-500 selection:text-white">
+
+  <!-- SPLASH EKRAN -->
+  <div id="app-splash-screen" class="fixed inset-0 z-[9999] flex flex-col items-center justify-between p-6 sm:p-8 bg-gradient-to-b from-slate-950 via-emerald-950 to-slate-950 text-white select-none transition-all duration-700 ease-out">
+    <!-- Radial Ambient Glow Effect -->
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(16,185,129,0.22)_0%,transparent_65%)] pointer-events-none"></div>
+
+    <!-- Yuqori qism (Tizim holati va O'tkazish tugmasi) -->
+    <div class="w-full flex justify-between items-center z-10 pt-2 opacity-90 max-w-md">
+      <div class="flex items-center gap-1.5 text-xs text-emerald-300 font-mono tracking-widest uppercase">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span>Islohot 2.0</span>
+      </div>
+      <button type="button" onclick="dismissSplashScreen(event)" class="px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 text-xs text-white/90 font-semibold backdrop-blur-md transition-all active:scale-95 cursor-pointer border border-white/10 shadow-sm">
+        O'tkazish &rarr;
+      </button>
+    </div>
+
+    <!-- Markaziy Asosiy Qism (Emblem, Bismillah, Salom va Sarlavha) -->
+    <div class="flex flex-col items-center justify-center text-center z-10 space-y-4 my-auto max-w-sm px-4">
+      <!-- Glowing Logo Icon -->
+      <div class="relative group">
+        <div class="absolute -inset-2 bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full blur-xl opacity-40 group-hover:opacity-75 transition duration-500 animate-pulse"></div>
+        <div class="relative w-28 h-28 rounded-full bg-slate-900/90 border-2 border-emerald-400/40 p-1 shadow-2xl flex items-center justify-center backdrop-blur-md overflow-hidden">
+          <img src="icon.png" alt="Logo" class="w-full h-full object-cover rounded-full drop-shadow-md" onerror="this.onerror=null; this.src='icon.png';">
+        </div>
+      </div>
+
+      <!-- Bismillahir Rohmanir Rohiym -->
+      <div class="pt-2">
+        <p class="font-serif text-2xl sm:text-3xl text-emerald-300 drop-shadow-sm tracking-wide leading-relaxed">
+          بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+        </p>
+      </div>
+
+      <!-- Assalomu alaykum va rahmatullohi va barokatuh -->
+      <div class="space-y-1.5">
+        <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight drop-shadow-md leading-snug">
+          Assalomu alaykum va rahmatullohi va barakatuh
+        </h2>
+        <p class="text-xs sm:text-sm text-emerald-200/80 font-medium">
+          Ma'naviy va jismoniy islohot
+        </p>
+      </div>
+    </div>
+
+    <!-- Pastki Yuklanish Chizig'i -->
+    <div class="w-full max-w-xs flex flex-col items-center z-10 pb-4 space-y-2">
+      <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden p-0.5 border border-white/10 shadow-inner">
+        <div id="splash-progress-bar" class="h-full bg-gradient-to-r from-emerald-400 via-teal-300 to-amber-300 rounded-full shadow-sm transition-all duration-150 ease-linear" style="width: 0%;"></div>
+      </div>
+      <div class="flex justify-between w-full text-xs text-emerald-200 font-mono px-1">
+        <span>Yuklanmoqda...</span>
+        <span id="splash-countdown">3.5s</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile App Container (Max-width for desktop, 100% on phone) -->
+  <div class="w-full max-w-md bg-white dark:bg-slate-900 min-h-screen flex flex-col shadow-2xl relative border-x border-slate-200/80 dark:border-slate-800">
+
+    <!-- In-App 22:00 Reminder Banner -->
+    <div id="in-app-reminder-banner" class="hidden fixed top-3 inset-x-3 max-w-sm mx-auto z-50 p-4 rounded-2xl bg-slate-900/95 text-white shadow-2xl border border-emerald-500/50 backdrop-blur-md transition-all duration-300" role="alert" aria-live="assertive">
+      <div class="flex items-start gap-3">
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl shrink-0" aria-hidden="true">
+          ⏰
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-xs text-emerald-300">Kechki Eslatma (22:00)</h4>
+            <button type="button" onclick="dismissInAppReminder()" class="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-400 hover:text-white text-xl leading-none cursor-pointer" aria-label="Eslatmani yopish">&times;</button>
+          </div>
+          <p id="in-app-reminder-text" class="text-xs text-slate-200 mt-1 leading-snug">
+            Bugun sizda bajarilmagan vazifalar qoldi. Kun yakunlanishidan oldin ularni belgilashni unutmang!
+          </p>
+          <div class="pt-2 flex gap-2">
+            <button type="button" onclick="switchTab('today'); dismissInAppReminder();" class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold cursor-pointer">
+              Amallarga o'tish &rarr;
+            </button>
+            <button type="button" onclick="dismissInAppReminder()" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs cursor-pointer">
+              Tushundim
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top App Header -->
+    <header class="bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-800 text-white pt-safe px-5 pb-5 rounded-b-[2rem] shadow-lg sticky top-0 z-40">
+      <div class="flex items-center justify-between pt-3 pb-2">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 overflow-hidden shadow-sm shrink-0">
+            <img src="icon.png" alt="Logo" class="w-full h-full object-cover">
+          </div>
+          <div>
+            <h1 class="font-extrabold text-sm tracking-tight leading-tight text-emerald-50">Alloh Roziligiga Erishish Uchun</h1>
+            <p class="text-xs text-emerald-100 font-medium">Ma'naviy va jismoniy harakat</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <!-- Profile & Reminder button -->
+          <button type="button" onclick="openProfileModal()" class="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-white/10 hover:bg-white/20 transition-colors flex items-center justify-center cursor-pointer" title="Profil va Eslatmalar" aria-label="Profil va Eslatmalar">
+            <i data-feather="user" class="w-4 h-4 text-emerald-100" aria-hidden="true"></i>
+          </button>
+          <!-- Day badge -->
+          <div id="current-day-badge" class="px-2.5 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-xs font-bold text-white tracking-wide" role="status" aria-live="polite">
+            1-kun
+          </div>
+          <!-- Dark mode toggle -->
+          <button type="button" id="dark-mode-toggle-btn" onclick="toggleDarkMode()" class="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-white/10 hover:bg-white/20 transition-colors flex items-center justify-center cursor-pointer" aria-label="Qorong'i rejimni almashtirish" aria-pressed="false">
+            <i data-feather="moon" class="w-4 h-4 text-emerald-100" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Progress Bar in Header -->
+      <div class="mt-3 pt-2 border-t border-white/10">
+        <div class="flex justify-between items-center text-xs mb-1.5 text-emerald-100 font-medium">
+          <span id="header-progress-text" role="status" aria-live="polite">0% bajarildi (0/10)</span>
+          <span class="text-xs bg-emerald-950/40 px-2.5 py-0.5 rounded-md font-semibold text-emerald-100">Bugungi reja</span>
+        </div>
+        <div class="w-full h-2.5 bg-black/20 rounded-full overflow-hidden p-0.5" role="progressbar" id="header-progress-container" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Bugungi reja bajarilishi">
+          <div id="header-progress-bar" class="h-full bg-gradient-to-r from-emerald-300 to-amber-300 rounded-full transition-all duration-500 shadow-sm" style="width: 0%"></div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Area (Tabs) -->
+    <main class="flex-1 overflow-y-auto px-4 py-5 pb-28">
+
+      <!-- TAB 1: BUGUNGI AMALLAR (DAILY VIEW) -->
+      <section id="tab-content-today" class="tab-content space-y-4">
+
+        <!-- Faol Seanslar Paneli (Yuqorida barcha faol seanslar to'liq ko'rinadi) -->
+        <div id="daily-cycles-bar">
+          <!-- app.js orqali renderDailyCyclesBar() bilan to'ldiriladi -->
+        </div>
+
+        <!-- Gorizontal Taqvim Lenta (Horizontal Slider) -->
+        <div id="daily-calendar-slider-container" class="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-2xl border border-slate-200/70 dark:border-slate-800">
+          <div class="flex items-center justify-between mb-2 px-1">
+            <span id="daily-calendar-title" class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Taqvim</span>
+            <span class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold cursor-pointer" onclick="switchTab('matrix')">Jadvalda ko'rish &rarr;</span>
+          </div>
+          <div id="days-horizontal-scroll" class="flex gap-2 overflow-x-auto pb-1 no-scrollbar scroll-smooth">
+            <!-- Kun tugmalari app.js orqali render bo'ladi -->
+          </div>
+        </div>
+
+        <!-- Joriy Kun Sarhisobi & Motivatsiya -->
+        <div id="daily-summary-header">
+          <!-- Seanslarni tezkor almashtirish tugmalari (Aynan shu sarlavha ustida har doim ko'rinib turadi) -->
+          <div id="daily-quick-switch" class="mb-2"></div>
+
+          <div class="flex items-center justify-between px-1">
+            <div>
+              <h2 id="daily-date-label" class="font-bold text-lg text-slate-800 dark:text-white">1-kun (8-sana)</h2>
+              <p id="daily-subtitle" class="text-xs text-slate-500 dark:text-slate-400">Kunlik vazifalarni ixlos bilan ado eting</p>
+            </div>
+            <div class="text-right">
+              <span id="daily-completion-pct" class="text-2xl font-black text-emerald-600 dark:text-emerald-400">0%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 100% Bo'lgandagi Tabrik Kartasi -->
+        <div id="all-done-banner" class="hidden p-4 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-700 text-white shadow-lg animate-celebrate">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-xl shrink-0">
+              🎉
+            </div>
+            <div>
+              <h3 class="font-bold text-sm">Mashalloh! Barcha amallar bajarildi!</h3>
+              <p class="text-xs text-emerald-100 mt-0.5">Alloh qabul qilsin va bardavom aylasin. Bugungi kuningiz barakali o'tdi.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Amallar Ro'yxati (Habit List) -->
+        <div id="daily-habits-list" class="space-y-2.5">
+          <!-- Amallar app.js orqali render bo'ladi -->
+        </div>
+
+        <!-- Dinamik Amallar Shartlari va Eslatmalar (Faqat foydalanuvchi kiritgan bo'lsa chiqadi) -->
+        <div id="daily-custom-notes-container"></div>
+
+      </section>
+
+      <!-- TAB 2: JADVAL (EXCEL MATRITSASI) -->
+      <section id="tab-content-matrix" class="tab-content hidden space-y-3.5">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="font-bold text-lg text-slate-800 dark:text-white flex items-center gap-2">
+              <span id="matrix-cycle-title">1-seans: Jadval</span>
+            </h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Jadvaldagi katakchani bosib o'zgartiring</p>
+          </div>
+          <button type="button" onclick="exportToCSV()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-sm transition-all">
+            <i data-feather="download" class="w-3.5 h-3.5"></i>
+            Excel CSV
+          </button>
+        </div>
+
+        <!-- O'tgan seanslar tarixi (Kichraygan holda tepada ko'rinib turadigan qism) -->
+        <div id="cycles-history-container" class="space-y-1.5">
+          <!-- app.js orqali renderCyclesHistoryBar() bilan to'ldiriladi -->
+        </div>
+
+        <!-- Agar arxiv ko'rilayotgan bo'lsa ogohlantirish banneri -->
+        <div id="archive-view-banner" class="hidden p-3 rounded-2xl bg-amber-500/10 border border-amber-500/40 text-amber-700 dark:text-amber-300 text-xs flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-base">📜</span>
+            <span class="font-medium">Siz o'tgan seans tarixini ko'rmoqdasiz (Qulflangan).</span>
+          </div>
+          <button type="button" onclick="returnToActiveCycle()" class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-colors">
+            Joriy seansga qaytish &rarr;
+          </button>
+        </div>
+
+        <!-- Seansni tugatish banneri -->
+        <div id="cycle-finish-banner" class="p-3.5 rounded-2xl bg-gradient-to-r from-emerald-700 via-teal-700 to-emerald-800 text-white shadow-lg flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center text-lg shrink-0">
+              🏁
+            </div>
+            <div>
+              <div class="font-extrabold text-xs" id="cycle-finish-banner-title">1-seans: Yakunlandi</div>
+              <div class="text-xs text-emerald-100" id="cycle-finish-banner-sub">Natijalarni ko'rish va yangi seansni boshlash</div>
+            </div>
+          </div>
+          <button type="button" onclick="finishCycleAndShowResults()" class="px-3.5 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-900 font-extrabold text-xs shadow-md active:scale-95 transition-transform flex items-center gap-1.5 shrink-0">
+            <span>Tugatish & Natijalar 🎉</span>
+          </button>
+        </div>
+
+        <!-- Excel Scrollable Table Container -->
+        <div class="border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden shadow-sm bg-white dark:bg-slate-900">
+          <div class="overflow-x-auto max-h-[65vh] relative">
+            <table class="w-full border-collapse text-left text-xs">
+              <thead class="sticky-header shadow-sm">
+                <tr id="matrix-header-row">
+                  <!-- Header row app.js dan to'ldiriladi -->
+                </tr>
+              </thead>
+              <tbody id="matrix-table-body" class="divide-y divide-slate-100 dark:divide-slate-800">
+                <!-- Body rows app.js dan to'ldiriladi -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <p class="text-xs text-slate-500 dark:text-slate-400 text-center italic">
+          💡 Chap ustundagi amal nomi qotirilgan. O'ngga surib barcha natijalarni to'liq ko'rishingiz mumkin.
+        </p>
+      </section>
+
+      <!-- TAB 3: ZIKR VA TASBEH HISOB-KITOBI -->
+      <section id="tab-content-tasbeh" class="tab-content hidden space-y-5 text-center">
+        <div class="flex items-center justify-between text-left">
+          <div>
+            <h2 class="font-bold text-lg text-slate-800 dark:text-white flex items-center gap-2">
+              <span>Zikr</span>
+              <span id="tasbeh-zikr-count-badge" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300"></span>
+            </h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Tonggi va kechki zikrlarni barmoq bilan sanash</p>
+          </div>
+          <button type="button" onclick="focusNewZikrInput()" class="px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs font-bold hover:bg-emerald-100 transition-colors flex items-center gap-1 cursor-pointer">
+            <i data-feather="plus" class="w-3.5 h-3.5"></i>
+            <span>Zikr qo'shish</span>
+          </button>
+        </div>
+
+        <!-- Bo'sh holat (Hali zikr qo'shilmagan bo'lsa) -->
+        <div id="tasbeh-empty-state" class="hidden p-6 rounded-3xl bg-slate-50 dark:bg-slate-800/80 border-2 border-dashed border-slate-200 dark:border-slate-700 text-center space-y-2.5">
+          <div class="text-3xl">📿</div>
+          <div class="font-bold text-sm text-slate-800 dark:text-white">Zikrlar hali kiritilmagan</div>
+          <p class="text-xs text-slate-500 dark:text-slate-400 max-w-xs mx-auto">
+            O'zingiz o'qimoqchi bo'lgan zikrni pastdagi formadan qo'shing va sanashni boshlang.
+          </p>
+        </div>
+
+        <!-- Faol Zikr va Hisoblagich Konteyneri -->
+        <div id="tasbeh-active-container" class="space-y-4">
+          <!-- Zikr turlari (Tabs) -->
+          <div id="tasbeh-type-tabs" class="flex gap-2 overflow-x-auto pb-1 no-scrollbar justify-start">
+            <!-- Dinamik zikrlar tablari -->
+          </div>
+
+          <!-- Asosiy Zikr Ko'rinishi va Matni -->
+          <div class="p-5 rounded-3xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 space-y-2 relative">
+            <div class="flex items-center justify-between">
+              <span id="tasbeh-current-title" class="text-xs font-bold text-emerald-600 dark:text-emerald-400 tracking-wider uppercase">Salovat</span>
+              <button type="button" onclick="deleteActiveCustomZikr()" title="Ushbu zikrni o'chirish" class="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl text-slate-500 hover:text-rose-500 hover:bg-slate-200/60 dark:hover:bg-slate-700/60 transition-colors cursor-pointer" aria-label="Ushbu zikrni o'chirish">
+                <i data-feather="trash-2" class="w-4 h-4"></i>
+              </button>
+            </div>
+            <p id="tasbeh-current-text" class="text-sm font-arabic text-slate-700 dark:text-slate-200 leading-relaxed font-semibold">
+              "Allohumma solli 'ala sayyidina Muhammad"
+            </p>
+          </div>
+
+          <!-- Katta Aylanuvchi Tasbeh Tugmasi -->
+          <div class="relative flex items-center justify-center my-4">
+            <!-- Circular SVG Progress -->
+            <svg class="w-64 h-64 transform -rotate-90">
+              <circle cx="128" cy="128" r="90" stroke="currentColor" stroke-width="8" class="text-slate-200 dark:text-slate-800" fill="transparent"/>
+              <circle id="tasbeh-circle-progress" cx="128" cy="128" r="90" stroke="currentColor" stroke-width="10" stroke-linecap="round" class="text-emerald-500 transition-all duration-150" fill="transparent" stroke-dasharray="565.48" stroke-dashoffset="565.48"/>
+            </svg>
+
+            <!-- Clickable Center Button -->
+            <button type="button" id="tasbeh-big-button" onclick="incrementTasbeh()" class="absolute w-44 h-44 rounded-full bg-gradient-to-tr from-emerald-600 via-emerald-500 to-teal-500 text-white flex flex-col items-center justify-center shadow-2xl active:scale-95 transition-all select-none border-4 border-white dark:border-slate-900 group cursor-pointer">
+              <span id="tasbeh-current-count" class="text-4xl font-extrabold tracking-tight">0</span>
+              <span id="tasbeh-current-target" class="text-xs text-emerald-100 font-medium mt-1">/ 100 ta</span>
+              <span class="text-xs text-emerald-100 font-medium uppercase mt-2 bg-emerald-700/50 px-2.5 py-0.5 rounded-full">Bosing</span>
+            </button>
+          </div>
+
+          <!-- Boshqaruv tugmalari -->
+          <div class="flex items-center justify-center gap-3">
+            <button type="button" onclick="resetTasbeh()" class="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors cursor-pointer">
+              <i data-feather="rotate-ccw" class="w-3.5 h-3.5"></i>
+              Nollashtirish
+            </button>
+          </div>
+
+          <!-- Istig'for amalini birdaniga "Bajarildi" deb belgilash tugmasi -->
+          <div id="tasbeh-complete-habit-btn" class="hidden pt-2">
+            <button type="button" onclick="markIstigforHabitDone()" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold text-sm shadow-lg hover:shadow-emerald-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer">
+              <i data-feather="check-circle" class="w-5 h-5"></i>
+              Bugungi zikr amalini bajarildi deb belgilash
+            </button>
+          </div>
+        </div>
+
+        <!-- YANGI ZIKR QO'SHISH QISMI (Ochiq holda chiqib turadi) -->
+        <div id="add-zikr-form-card" class="p-5 rounded-3xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 shadow-sm text-left space-y-4">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-700/50">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-sm">
+                ➕
+              </div>
+              <div>
+                <h3 class="font-bold text-sm text-slate-800 dark:text-white">Yangi zikr qo'shish</h3>
+                <p class="text-xs text-slate-600 dark:text-slate-400">O'zingiz xohlagan zikrni kiriting</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tezkor andozalar -->
+          <div class="space-y-1.5">
+            <span class="block text-xs font-bold text-slate-700 dark:text-slate-300">Tezkor andozalar (tanlab olishingiz mumkin):</span>
+            <div class="flex flex-wrap gap-1.5">
+              <button type="button" onclick="applyZikrTemplate('istigfor')" class="px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-700/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 text-slate-700 dark:text-slate-200 hover:text-emerald-700 dark:hover:text-emerald-300 text-xs font-medium transition-colors border border-slate-200 dark:border-slate-600 cursor-pointer">
+                📿 Istig'for (100)
+              </button>
+              <button type="button" onclick="applyZikrTemplate('salovat')" class="px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-700/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 text-slate-700 dark:text-slate-200 hover:text-emerald-700 dark:hover:text-emerald-300 text-xs font-medium transition-colors border border-slate-200 dark:border-slate-600 cursor-pointer">
+                ❤️ Salovat (100)
+              </button>
+              <button type="button" onclick="applyZikrTemplate('subhanalloh')" class="px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-700/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 text-slate-700 dark:text-slate-200 hover:text-emerald-700 dark:hover:text-emerald-300 text-xs font-medium transition-colors border border-slate-200 dark:border-slate-600 cursor-pointer">
+                ✨ Subhanalloh (33)
+              </button>
+              <button type="button" onclick="applyZikrTemplate('alhamdulillah')" class="px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-700/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 text-slate-700 dark:text-slate-200 hover:text-emerald-700 dark:hover:text-emerald-300 text-xs font-medium transition-colors border border-slate-200 dark:border-slate-600 cursor-pointer">
+                🤲 Alhamdulillah (33)
+              </button>
+              <button type="button" onclick="applyZikrTemplate('allohu_akbar')" class="px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-700/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 text-slate-700 dark:text-slate-200 hover:text-emerald-700 dark:hover:text-emerald-300 text-xs font-medium transition-colors border border-slate-200 dark:border-slate-600 cursor-pointer">
+                🌟 Allohu Akbar (33)
+              </button>
+              <button type="button" onclick="applyZikrTemplate('tavhid')" class="px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-700/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 text-slate-700 dark:text-slate-200 hover:text-emerald-700 dark:hover:text-emerald-300 text-xs font-medium transition-colors border border-slate-200 dark:border-slate-600 cursor-pointer">
+                🛡️ Tavhid (100)
+              </button>
+              <button type="button" onclick="applyZikrTemplate('ixlos')" class="px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-700/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 text-slate-700 dark:text-slate-200 hover:text-emerald-700 dark:hover:text-emerald-300 text-xs font-medium transition-colors border border-slate-200 dark:border-slate-600 cursor-pointer">
+                📖 Ixlos surasi (1001)
+              </button>
+            </div>
+          </div>
+
+          <!-- Kiritish maydonlari -->
+          <div class="space-y-3">
+            <div>
+              <label for="new-zikr-name" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Zikr yoki amal nomi *</label>
+              <input type="text" id="new-zikr-name" autocomplete="off" required placeholder="Masalan: Istig'for, Salovat, Subhanalloh..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            </div>
+            <div>
+              <label for="new-zikr-text" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Zikr matni yoki duosi (ixtiyoriy)</label>
+              <input type="text" id="new-zikr-text" autocomplete="off" placeholder="Masalan: Astag'firulloh al-Aziym va atubu ilayh" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            </div>
+            <div>
+              <label for="new-zikr-target" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Belgilangan maqsad soni (ta) *</label>
+              <input type="number" id="new-zikr-target" inputmode="numeric" required placeholder="100" min="1" max="100000" value="100" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            </div>
+            <button type="button" onclick="addNewCustomZikr()" class="w-full py-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs shadow-md hover:shadow-emerald-500/25 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer">
+              <i data-feather="plus" class="w-4 h-4"></i>
+              Zikrni qo'shish va hisoblashni boshlash
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: TAHLIL VA STATISTIKA -->
+      <section id="tab-content-stats" class="tab-content hidden space-y-4">
+        <div>
+          <h2 class="font-bold text-lg text-slate-800 dark:text-white">Umumiy Natijalar</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Intizom ko'rsatkichi va tahlil</p>
+        </div>
+
+        <!-- Seanslar tanlagichi (Har bir seans uchun alohida tahlil) -->
+        <div id="stats-cycles-bar" class="space-y-1">
+          <!-- app.js renderStatsCyclesBar() orqali to'ldiriladi -->
+        </div>
+
+        <!-- Yuqori Card: Umumiy Ko'rsatkich -->
+        <div class="p-5 rounded-3xl bg-gradient-to-br from-emerald-600 to-teal-800 text-white shadow-xl relative overflow-hidden">
+          <div class="relative z-10 flex items-center justify-between">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs text-emerald-200 uppercase font-bold tracking-wider">Umumiy Intizom</span>
+                <span id="stats-cycle-badge" class="px-2 py-0.5 rounded-full bg-white/20 text-white text-xs font-extrabold backdrop-blur-sm">1-seans</span>
+              </div>
+              <div id="stats-overall-pct" class="text-4xl font-extrabold tracking-tight mt-1">0%</div>
+              <p class="text-xs text-emerald-100 mt-1">
+                Bajarilgan amallar: <span id="stats-total-points" class="font-bold">0 / 0</span>
+              </p>
+            </div>
+            <div class="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20">
+              <i data-feather="award" class="w-8 h-8 text-amber-300"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Intizom Grafigi Card -->
+        <div class="p-5 rounded-3xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/70 shadow-sm space-y-3.5">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-sm">
+                <i data-feather="trending-up" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-sm text-slate-800 dark:text-white flex items-center gap-2">
+                  <span>Intizom grafigi</span>
+                  <span id="stats-chart-days-badge" class="px-2 py-0.5 rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-extrabold text-xs">40 kunlik</span>
+                </h3>
+                <p id="stats-chart-subtitle" class="text-xs text-slate-600 dark:text-slate-400">Kunlik ko'tarilish va pasayish dinamikasi</p>
+              </div>
+            </div>
+            <span id="chart-best-day-badge" class="px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 text-xs font-extrabold">
+              Eng yuqori: 0%
+            </span>
+          </div>
+
+          <!-- Interaktiv SVG Grafik Konteyneri -->
+          <div class="relative w-full overflow-hidden pt-1">
+            <!-- Tooltip -->
+            <div id="stats-chart-tooltip" class="hidden absolute z-30 pointer-events-none bg-slate-900/95 text-white px-2.5 py-1.5 rounded-xl shadow-xl border border-emerald-500/50 text-xs font-medium transition-all duration-150 transform -translate-x-1/2 -translate-y-full">
+              <div id="stats-chart-tooltip-day" class="font-bold text-emerald-400">1-kun</div>
+              <div id="stats-chart-tooltip-val" class="text-xs text-slate-200">0 / 0 ta amal (0%)</div>
+            </div>
+
+            <!-- SVG Container -->
+            <div id="stats-chart-container" class="w-full">
+              <!-- app.js orqali renderDisciplineChart() dinamik chizadi -->
+            </div>
+          </div>
+
+          <!-- Grafik Ostidagi Xulosa Ko'rsatkichlari -->
+          <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-100 dark:border-slate-700/60 text-center">
+            <div class="p-2 rounded-xl bg-slate-50 dark:bg-slate-900/50">
+              <div class="text-xs text-slate-600 dark:text-slate-400 font-medium">O'rtacha intizom</div>
+              <div id="chart-avg-pct" class="text-xs font-black text-emerald-600 dark:text-emerald-400 mt-0.5">0%</div>
+            </div>
+            <div class="p-2 rounded-xl bg-slate-50 dark:bg-slate-900/50">
+              <div class="text-xs text-slate-600 dark:text-slate-400 font-medium">Eng yuqori kun</div>
+              <div id="chart-peak-day" class="text-xs font-black text-teal-600 dark:text-teal-400 mt-0.5">0-kun</div>
+            </div>
+            <div class="p-2 rounded-xl bg-slate-50 dark:bg-slate-900/50">
+              <div class="text-xs text-slate-600 dark:text-slate-400 font-medium">Faol kunlar</div>
+              <div id="chart-active-days-count" class="text-xs font-black text-amber-600 dark:text-amber-400 mt-0.5">0 kun</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Amallar Reytingi -->
+        <div class="space-y-3">
+          <h3 class="font-bold text-sm text-slate-800 dark:text-white flex items-center gap-2">
+            <i data-feather="bar-chart-2" class="w-4 h-4 text-emerald-600"></i>
+            Amallar bo'yicha intizom
+          </h3>
+          <div id="stats-habits-ranking" class="space-y-2">
+            <!-- app.js orqali to'ldiriladi -->
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 5: SOZLAMALAR VA EKSPORT -->
+      <section id="tab-content-settings" class="tab-content hidden space-y-4">
+        <div>
+          <h2 class="font-bold text-lg text-slate-800 dark:text-white">Sozlamalar</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Reja, amallar va zaxira nusxa</p>
+        </div>
+
+        <!-- Profil va Kunlik Eslatma Kartasi (To'g'ridan-to'g'ri Sozlamalarda) -->
+        <div class="p-4 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/70 shadow-sm space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-sm text-slate-800 dark:text-white flex items-center gap-2">
+              <i data-feather="user" class="w-4 h-4 text-emerald-600"></i>
+              Profil va Kunlik Eslatma
+            </h3>
+            <button type="button" onclick="openProfileModal()" class="px-3 py-1 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 text-emerald-700 dark:text-emerald-300 font-bold text-xs transition-colors flex items-center gap-1 cursor-pointer">
+              <span>Batafsil sozlash</span> &rarr;
+            </button>
+          </div>
+          
+          <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-700/60 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-sm font-bold text-white shadow-sm" id="settings-profile-avatar">
+                <i data-feather="user" class="w-5 h-5 text-white" aria-hidden="true"></i>
+              </div>
+              <div>
+                <div class="text-xs font-bold text-slate-800 dark:text-white flex items-center gap-1.5" id="settings-profile-name">
+                  Foydalanuvchi
+                  <span class="text-xs bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 px-1.5 py-0.5 rounded font-semibold">Yangi</span>
+                </div>
+                <div id="settings-profile-reminder-desc" class="text-xs text-slate-600 dark:text-slate-400">Har kuni soat 22:00 da bajarilmagan amallar haqida eslatadi (ilova yopiq bo'lsa ham)</div>
+              </div>
+            </div>
+            <button type="button" id="settings-profile-reminder-btn" onclick="openProfileModal()" class="px-2 py-1 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 text-xs font-bold cursor-pointer">
+              22:00 da Faol ⚙️
+            </button>
+          </div>
+
+          <!-- Jinsni tanlash (Erkak / Ayol) -->
+          <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-700/60 flex items-center justify-between">
+            <div>
+              <div class="text-xs font-bold text-slate-800 dark:text-white flex items-center gap-1.5">
+                <span>👤</span> Jinsingiz:
+              </div>
+              <div class="text-xs text-slate-600 dark:text-slate-400" id="settings-gender-desc">Ayol</div>
+            </div>
+            <div class="flex items-center gap-1 p-0.5 rounded-xl bg-slate-200 dark:bg-slate-800">
+              <button type="button" id="settings-gender-erkak-btn" onclick="setUserGender('erkak')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer">
+                👨 Erkak
+              </button>
+              <button type="button" id="settings-gender-ayol-btn" onclick="setUserGender('ayol')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer">
+                🧕 Ayol
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Boshlanish sanasi (1-kun) -->
+        <div class="p-4 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/70 shadow-sm space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-sm text-slate-800 dark:text-white flex items-center gap-2">
+              <i data-feather="calendar" class="w-4 h-4 text-emerald-600"></i>
+              <span>Boshlanish sanasi (1-kun)</span>
+            </h3>
+            <span id="settings-startdate-seans-lbl" class="font-extrabold text-xs text-emerald-600 dark:text-emerald-400">1-seans</span>
+          </div>
+
+          <!-- Qaysi seansning boshlanish sanasi ekanligini tanlash tugmalari -->
+          <div class="space-y-1.5 p-2 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700/60">
+            <div class="text-xs font-semibold text-slate-600 dark:text-slate-400 flex items-center justify-between">
+              <span>Seansni tanlang:</span>
+              <span class="text-xs text-slate-500 dark:text-slate-400">Har bir seans alohida sanaga ega</span>
+            </div>
+            <div id="settings-startdate-seans-tabs" class="flex items-center gap-1.5 overflow-x-auto pb-0.5 no-scrollbar">
+              <!-- app.js orqali to'ldiriladi: [ ⚡ 1-seans ] [ ⚡ 2-seans ] -->
+            </div>
+          </div>
+
+          <div>
+            <label for="settings-start-date" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Tanlangan seansning 1-kun sanasi:</label>
+            <input type="date" id="settings-start-date" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm text-slate-800 dark:text-white focus:outline-emerald-500" onchange="handleStartDateChange(this.value)">
+          </div>
+
+          <div class="pt-1 flex items-center justify-between">
+            <button type="button" onclick="setStartDateToday()" class="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-slate-700 dark:text-emerald-200 border border-slate-200 dark:border-slate-700 font-semibold text-xs transition-colors flex items-center gap-1.5 cursor-pointer">
+              <span>📅</span>
+              <span>Bugundan boshlash</span>
+            </button>
+            <span id="settings-startdate-info" class="text-xs font-bold text-slate-500 dark:text-slate-400"></span>
+          </div>
+        </div>
+
+        <!-- Amallar (Har bir seans uchun alohida amallar ro'yxati) -->
+        <div id="settings-habits-section" class="p-4 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/70 shadow-sm space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-sm text-slate-800 dark:text-white flex items-center gap-2">
+              <i data-feather="check-circle" class="w-4 h-4 text-emerald-600"></i>
+              <span>Vazifalar (Amallar) ro'yxati</span>
+            </h3>
+            <span id="settings-habits-count" class="text-xs text-slate-400 font-medium">0 ta amal</span>
+          </div>
+
+          <!-- Qaysi seansning amallari boshqarilayotganini tanlash -->
+          <div class="space-y-1.5 p-2 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700/60">
+            <div class="text-xs font-semibold text-slate-600 dark:text-slate-400 flex items-center justify-between">
+              <span>Seansni tanlang:</span>
+              <span id="settings-current-seans-lbl" class="font-extrabold text-emerald-600 dark:text-emerald-400">1-seans</span>
+            </div>
+            <div id="settings-seans-tabs" class="flex items-center gap-1.5 overflow-x-auto pb-0.5 no-scrollbar">
+              <!-- app.js orqali to'ldiriladi: [ ⚡ 1-seans ] [ ⚡ 2-seans ] -->
+            </div>
+          </div>
+
+          <!-- Amallar dinamik ro'yxati -->
+          <div id="settings-habits-list" class="space-y-2">
+            <!-- app.js orqali renderSettingsHabits() bilan chiziladi -->
+          </div>
+
+          <!-- Yangi amal qo'shish qatori -->
+          <div class="flex items-center gap-2 pt-1">
+            <input type="text" id="settings-new-habit-input" aria-label="Yangi vazifa nomi" placeholder="Yangi vazifa (amal) nomi..." autocomplete="off" onkeydown="if(event.key==='Enter')addNewHabitFromSettings()" class="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm text-slate-800 dark:text-white focus:outline-emerald-500 placeholder:text-slate-500 dark:placeholder:text-slate-400">
+            <button type="button" onclick="addNewHabitFromSettings()" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition-colors whitespace-nowrap cursor-pointer">
+              + Qo'shish
+            </button>
+          </div>
+
+          <!-- Amallar shartlari va eslatma matni (Har bir seans uchun alohida) -->
+          <div class="pt-3 border-t border-slate-200/80 dark:border-slate-700/80 space-y-2">
+            <div class="flex items-center justify-between">
+              <label for="settings-seans-notes-input" class="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                <span>📌</span>
+                <span>Amallar shartlari va eslatmalar:</span>
+              </label>
+              <span class="text-xs text-slate-500 dark:text-slate-400">"Bugun" bo'limida chiqadi</span>
+            </div>
+            <textarea 
+              id="settings-seans-notes-input" 
+              rows="3" 
+              placeholder="Misol uchun: Istig'for amali ichiga tongda va tunda 100 salovat, 100 istig'for, 100 tavhid va 1001 ta Ixlos surasi kiradi. Uyqu tartibi: soat 22:30 da uxlab, 04:30 da turish..." 
+              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs text-slate-800 dark:text-white focus:outline-emerald-500 placeholder:text-slate-500 dark:placeholder:text-slate-400 leading-relaxed resize-none"
+            ></textarea>
+            <div class="flex items-center justify-between pt-0.5">
+              <span id="settings-notes-save-status" class="text-xs text-slate-500 dark:text-slate-400">Har bir seans uchun alohida saqlanadi</span>
+              <button type="button" onclick="saveCurrentSeansNotes()" class="px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition-colors flex items-center gap-1 cursor-pointer">
+                <span>💾</span>
+                <span>Eslatmani saqlash</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- Zaxira nusxa (JSON eksport va import) -->
+        <div class="p-4 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/70 shadow-sm space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-sm text-slate-800 dark:text-white flex items-center gap-2">
+              <i data-feather="shield" class="w-4 h-4 text-emerald-600"></i>
+              Zaxira nusxa (Eksport va Tiklash)
+            </h3>
+            <span id="backup-last-date-badge" class="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500 text-xs font-semibold">
+              Hali zaxira olinmagan
+            </span>
+          </div>
+
+          <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+            Barcha seanslaringiz, belgilangan amallar, zikrlar va shaxsiy sozlamalaringizni bitta xavfsiz JSON faylga saqlab oling yoki avvalgi fayldan qayta tiklang.
+          </p>
+
+          <div class="grid grid-cols-2 gap-2 pt-1">
+            <!-- Eksport tugmasi -->
+            <button type="button" onclick="exportDataToJSON()" class="py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-all active:scale-95 cursor-pointer">
+              <i data-feather="download" class="w-3.5 h-3.5"></i>
+              <span>Zaxirani yuklash</span>
+            </button>
+
+            <!-- Import / Tiklash tugmasi -->
+            <button type="button" onclick="triggerRestoreFileInput()" class="py-2 px-3 rounded-xl bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-100 font-bold text-xs flex items-center justify-center gap-1.5 border border-slate-200 dark:border-slate-600 transition-all active:scale-95 cursor-pointer">
+              <i data-feather="upload" class="w-3.5 h-3.5"></i>
+              <span>Zaxiradan tiklash</span>
+            </button>
+            <input type="file" id="backup-file-input" accept="application/json" class="hidden" aria-label="JSON zaxira faylini tanlash" onchange="handleRestoreBackup(event)">
+          </div>
+
+          <div class="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-500 flex items-center gap-1 pt-0.5">
+            <span>🔒</span>
+            <span>Ma'lumotlar faqat sizning qurilmangizda saqlanadi.</span>
+          </div>
+        </div>
+
+        <!-- Tozalash -->
+        <div class="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/40 text-xs space-y-2">
+          <span class="font-bold text-rose-700 dark:text-rose-400">Xavfli hudud:</span>
+          <p class="text-rose-600 dark:text-rose-300 text-xs">Barcha ma'lumotlarni o'chirib, dastlabki holatga qaytarish.</p>
+          <button type="button" onclick="resetAllData()" class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs transition-colors cursor-pointer">
+            Barcha ma'lumotlarni nollashtirish
+          </button>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- 10 soniyalik Qaytarish (Undo) xabari (BOSQICH 4) -->
+    <div id="undo-toast" class="hidden fixed bottom-20 left-4 right-4 max-w-md mx-auto z-50 p-3.5 rounded-2xl bg-slate-900/95 dark:bg-slate-800/95 text-white shadow-2xl backdrop-blur-md border border-slate-700 flex items-center justify-between gap-3 animate-scale-in" role="status" aria-live="polite">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <span class="w-2.5 h-2.5 rounded-full bg-amber-400 shrink-0 animate-ping" aria-hidden="true"></span>
+        <div class="text-xs">
+          <p class="font-bold">Barcha ma'lumotlar nollashtirildi</p>
+          <p class="text-xs text-slate-300">Tiklash mumkin: <span id="undo-countdown" class="font-mono font-bold text-amber-300">10</span> soniya</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-1.5 shrink-0">
+        <button type="button" onclick="undoResetData()" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs transition-colors shadow-sm cursor-pointer">
+          Bekor qilish
+        </button>
+        <button type="button" onclick="dismissUndoToast()" class="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl text-slate-400 hover:text-white cursor-pointer" aria-label="Xabarni yopish">
+          <i data-feather="x" class="w-4 h-4" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation Bar (Qotirilgan / Pinned to bottom) -->
+    <nav aria-label="Asosiy menyu" class="bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-slate-200/80 dark:border-slate-800/80 px-2 py-2 pb-safe flex items-center justify-around gap-2 fixed bottom-0 left-0 right-0 z-50 shadow-2xl max-w-md mx-auto">
+      <button type="button" id="nav-btn-today" onclick="switchTab('today')" aria-current="page" class="flex flex-col items-center gap-1 p-2 rounded-xl text-emerald-600 dark:text-emerald-400 transition-colors">
+        <i data-feather="check-square" class="w-5 h-5" aria-hidden="true"></i>
+        <span class="text-xs font-bold">Bugun</span>
+      </button>
+
+      <button type="button" id="nav-btn-matrix" onclick="switchTab('matrix')" class="flex flex-col items-center gap-1 p-2 rounded-xl text-slate-400 dark:text-slate-500 hover:text-emerald-600 transition-colors">
+        <i data-feather="grid" class="w-5 h-5" aria-hidden="true"></i>
+        <span class="text-xs font-bold">Jadval</span>
+      </button>
+
+      <button type="button" id="nav-btn-tasbeh" onclick="switchTab('tasbeh')" class="flex flex-col items-center gap-1 p-2 rounded-xl text-slate-400 dark:text-slate-500 hover:text-emerald-600 transition-colors">
+        <i data-feather="disc" class="w-5 h-5" aria-hidden="true"></i>
+        <span class="text-xs font-bold">Tasbeh</span>
+      </button>
+
+      <button type="button" id="nav-btn-stats" onclick="switchTab('stats')" class="flex flex-col items-center gap-1 p-2 rounded-xl text-slate-400 dark:text-slate-500 hover:text-emerald-600 transition-colors">
+        <i data-feather="pie-chart" class="w-5 h-5" aria-hidden="true"></i>
+        <span class="text-xs font-bold">Tahlil</span>
+      </button>
+
+      <button type="button" id="nav-btn-settings" onclick="switchTab('settings')" class="flex flex-col items-center gap-1 p-2 rounded-xl text-slate-400 dark:text-slate-500 hover:text-emerald-600 transition-colors">
+        <i data-feather="settings" class="w-5 h-5" aria-hidden="true"></i>
+        <span class="text-xs font-bold">Sozlama</span>
+      </button>
+    </nav>
+
+    <!-- Modal: Yangi amal qo'shish -->
+    <div id="add-habit-modal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="add-habit-modal-title">
+      <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 w-full max-w-sm border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4 animate-scale-in">
+        <div class="flex items-center justify-between">
+          <h3 id="add-habit-modal-title" class="font-bold text-base text-slate-800 dark:text-white">Yangi amal qo'shish</h3>
+          <button type="button" onclick="closeAddHabitModal()" class="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer" aria-label="Yopish">
+            <i data-feather="x" class="w-5 h-5" aria-hidden="true"></i>
+          </button>
+        </div>
+        <form onsubmit="submitNewHabit(event)" class="space-y-3">
+          <div>
+            <label for="new-habit-name" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Amal nomi:</label>
+            <input type="text" id="new-habit-name" autocomplete="off" required placeholder="Masalan: Yugurish, Kitob o'qish" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:outline-emerald-500">
+          </div>
+          <div>
+            <label for="new-habit-desc" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Qisqacha izoh / maqsad:</label>
+            <input type="text" id="new-habit-desc" autocomplete="off" placeholder="Masalan: Har kuni 20 sahifa" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:outline-emerald-500">
+          </div>
+          <div class="flex gap-2.5 pt-2">
+            <button type="button" onclick="closeAddHabitModal()" class="flex-1 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs">Bekor qilish</button>
+            <button type="submit" class="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shadow-md">Qo'shish</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal: Profil va Kunlik Eslatma (To'liq UI) -->
+    <div id="profile-modal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="profile-modal-title">
+      <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 w-full max-w-sm border border-slate-200 dark:border-slate-800 shadow-2xl space-y-3.5 max-h-[90vh] overflow-y-auto no-scrollbar animate-scale-in">
+        
+        <!-- Header -->
+        <div class="flex items-center justify-between pb-1 border-b border-slate-100 dark:border-slate-800">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-sm font-bold" aria-hidden="true">
+              👤
+            </div>
+            <div>
+              <h2 id="profile-modal-title" class="text-xs font-extrabold text-slate-800 dark:text-white uppercase tracking-wide">Foydalanuvchi Profili</h2>
+              <p class="text-xs text-slate-600 dark:text-slate-400">Hisob va kunlik eslatma</p>
+            </div>
+          </div>
+          <button type="button" onclick="closeProfileModal()" class="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer" aria-label="Yopish">
+            <i data-feather="x" class="w-5 h-5" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <!-- Foydalanuvchi Identity Kartasi -->
+        <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/70 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-base font-black text-white shadow-md shadow-emerald-600/20" id="profile-avatar">
+              <i data-feather="user" class="w-6 h-6 text-white" aria-hidden="true"></i>
+            </div>
+            <div>
+              <div class="text-xs font-bold text-slate-800 dark:text-white flex items-center gap-1.5" id="profile-modal-name">
+                Foydalanuvchi
+                <span class="text-xs bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 px-1.5 py-0.5 rounded font-semibold">Yangi</span>
+              </div>
+              <div class="text-xs text-slate-600 dark:text-slate-400" id="profile-modal-meta">@foydalanuvchi · Seans hali ochilmagan</div>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold">Intizom</div>
+            <div class="text-xs font-black text-emerald-600" id="profile-modal-pct">0%</div>
+          </div>
+        </div>
+
+        <!-- Yangi Harakat Onboarding Banneri (Yangi Seans boshlanganda ko'rinadi) -->
+        <div id="profile-new-action-banner" class="hidden p-3.5 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-950 dark:text-emerald-200 text-xs space-y-1">
+          <div class="flex items-center gap-1.5 font-bold text-emerald-700 dark:text-emerald-300">
+            <span id="profile-banner-icon">👤</span>
+            <span id="profile-banner-title">Account ma'lumotlarini sozlash</span>
+          </div>
+          <p id="profile-banner-desc" class="text-xs leading-relaxed">
+            Seansni boshlashdan oldin ismingiz, jinsingiz va kechki 22:00 dagi eslatmani sozlang. Saqlaganingizdan so'ng to'g'ridan-to'g'ri seans ochishga o'tasiz.
+          </p>
+        </div>
+
+        <!-- Ilova Eslatmasi (Har kuni soat 22:00 da) -->
+        <div class="p-3.5 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200/80 dark:border-emerald-800/60 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1.5">
+              <span class="text-sm">⏰</span>
+              <span class="font-bold text-slate-800 dark:text-emerald-100 text-xs">Kunlik Vazifalar Eslatmasi</span>
+            </div>
+            <span id="reminder-status-pill" class="px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 text-xs font-bold flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> 22:00 da Faol
+            </span>
+          </div>
+
+          <div class="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-emerald-200/60 dark:border-emerald-800/40 space-y-2 text-xs">
+            <div class="flex items-start gap-2 text-slate-600 dark:text-slate-300">
+              <span class="text-emerald-600 text-sm shrink-0">💡</span>
+              <p class="leading-relaxed">
+                Har kuni soat <strong>22:00</strong> da bugungi bajarilmagan amallaringiz eslatib turiladi. Ilova yopiq turganda ham tizimli bildirishnoma orqali signal beradi.
+              </p>
+            </div>
+
+            <!-- 22:00 Eslatma Switch -->
+            <div class="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-slate-800">
+              <div>
+                <div class="text-xs font-bold text-slate-800 dark:text-slate-200">Har kuni 22:00 da eslatish</div>
+                <div class="text-xs text-slate-500 dark:text-slate-400">Ilova yopiq bo'lsa ham tizimli bildirishnoma bilan xabar berish</div>
+              </div>
+              <label for="profile-reminder-toggle" class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="profile-reminder-toggle" role="switch" aria-label="Kechki 22:00 eslatmasi" checked onchange="handleReminderToggle(this)" class="sr-only peer">
+                <div class="w-9 h-5 bg-slate-300 dark:bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+              </label>
+            </div>
+
+            <!-- Bildirishnoma holati / ogohlantirish xabari -->
+            <div id="notification-support-warning" class="hidden text-xs p-2 rounded-xl mt-1.5 leading-snug"></div>
+
+            <!-- Eslatmani tekshirish tugmasi -->
+            <div class="pt-1">
+              <button type="button" onclick="testNotificationNow()" class="w-full py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer">
+                <span>🔔</span>
+                <span>Eslatmani hoziroq tekshirib ko'rish</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Jinsni tanlash (Erkak / Ayol) -->
+        <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/70 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-800 dark:text-white flex items-center gap-1.5">
+              <span>👤</span> Jinsingiz:
+            </span>
+            <span id="profile-gender-badge" class="text-xs font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">
+              Ayol
+            </span>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" onclick="setUserGender('erkak')" id="modal-gender-erkak-btn" class="p-2.5 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer">
+              <span>👨</span>
+              <span>Erkak</span>
+            </button>
+            <button type="button" onclick="setUserGender('ayol')" id="modal-gender-ayol-btn" class="p-2.5 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer">
+              <span>🧕</span>
+              <span>Ayol</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Ismni Tahrirlash Kartasi -->
+        <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/70 space-y-2">
+          <div class="text-xs font-bold text-slate-800 dark:text-white flex items-center justify-between">
+            <span>Profil Ismini O'zgartirish</span>
+            <span class="text-xs text-slate-600 dark:text-slate-400 font-medium">Ismingiz</span>
+          </div>
+          <div class="flex gap-2">
+            <input type="text" id="profile-fullname-input" aria-label="To'liq ismingiz" autocomplete="name" placeholder="Ismingizni kiriting" onkeydown="if(event.key==='Enter') saveProfileName()" class="flex-1 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-xs font-medium text-slate-800 dark:text-white focus:outline-emerald-500">
+            <button type="button" onclick="saveProfileName()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs whitespace-nowrap shadow-sm cursor-pointer">
+              Saqlash
+            </button>
+          </div>
+          <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed" id="profile-save-status">
+            ℹ️ Ma'lumotlar faqat shu qurilmaning brauzerida saqlanadi. Yo'qotmaslik uchun vaqti-vaqti bilan zaxira nusxa oling.
+          </p>
+        </div>
+
+        <!-- Yangi Seans Boshlash Oqimi Uchun Maxsus Tugma -->
+        <div id="profile-new-action-buttons" class="hidden space-y-2 pt-1 border-t border-slate-100 dark:border-slate-800">
+          <button type="button" onclick="confirmProfileAndOpenSeans()" class="w-full py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold text-xs shadow-md shadow-emerald-600/30 flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer">
+            <span id="profile-confirm-action-text">💾 Ma'lumotlarni saqlash va Seans ochish</span>
+            <span>&rarr;</span>
+          </button>
+        </div>
+
+        <!-- Yopish -->
+        <button type="button" onclick="closeProfileModal()" class="w-full py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-xs transition-colors cursor-pointer">
+          Yopish
+        </button>
+      </div>
+    </div>
+
+    <!-- BARCHA TUGALLANGAN SEANSLAR MODALI (3 tadan ko'p bo'lganda) -->
+    <div id="archived-cycles-modal" class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="archived-cycles-modal-title">
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-sm w-full p-5 shadow-2xl space-y-4 max-h-[85vh] flex flex-col animate-scale-in">
+        
+        <div class="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+          <div class="flex items-center gap-2">
+            <div class="w-9 h-9 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center text-lg" aria-hidden="true">
+              📦
+            </div>
+            <div>
+              <h3 class="font-bold text-sm text-slate-800 dark:text-white" id="archived-cycles-modal-title">
+                Tugallangan Seanslar
+              </h3>
+              <p class="text-xs text-slate-600 dark:text-slate-400">
+                Barcha o'tgan seanslar va ularning hisoboti
+              </p>
+            </div>
+          </div>
+          <button type="button" onclick="closeArchivedCyclesModal()" class="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer" aria-label="Yopish">
+            ✕
+          </button>
+        </div>
+
+        <div id="archived-cycles-list" class="flex-1 overflow-y-auto space-y-2.5 pr-1 max-h-[55vh]">
+          <!-- Dinamik ro'yxat app.js orqali to'ldiriladi -->
+        </div>
+
+        <div class="pt-2 border-t border-slate-100 dark:border-slate-800">
+          <button type="button" onclick="closeArchivedCyclesModal()" class="w-full py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-xs transition-colors cursor-pointer">
+            Yopish
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SEANS NATIJALARI VA YANGI SEANS MODALI -->
+    <div id="cycle-results-modal" class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="cycle-results-modal-title">
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-sm w-full p-5 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto animate-scale-in">
+        
+        <!-- Header & Nishon -->
+        <div class="text-center space-y-1.5 pt-2">
+          <div class="w-16 h-16 mx-auto rounded-3xl bg-gradient-to-tr from-amber-400 to-amber-500 text-white flex items-center justify-center text-3xl shadow-lg shadow-amber-500/30">
+            🏆
+          </div>
+          <h3 id="cycle-results-modal-title" class="font-extrabold text-lg text-slate-800 dark:text-white pt-1">
+            Tabriklaymiz! 1-seans yakunlandi!
+          </h3>
+          <p id="cycle-results-modal-sub" class="text-xs text-slate-500 dark:text-slate-400">
+            Alloh qabul qilsin! Harakatingiz hisoboti tayyor.
+          </p>
+        </div>
+
+        <!-- Asosiy Metrikalar Kartasi -->
+        <div class="grid grid-cols-2 gap-2.5">
+          <div class="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-center">
+            <span class="text-xs uppercase font-bold text-emerald-600 dark:text-emerald-400">Umumiy Natija</span>
+            <div id="cycle-results-grand-pct" class="text-2xl font-black text-emerald-700 dark:text-emerald-300">85%</div>
+            <span class="text-xs text-slate-600 dark:text-slate-400">Intizom ko'rsatkichi</span>
+          </div>
+          <div class="p-3 rounded-2xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60 text-center">
+            <span class="text-xs uppercase font-bold text-blue-600 dark:text-blue-400">Bajarilgan Amallar</span>
+            <div id="cycle-results-total-done" class="text-2xl font-black text-blue-700 dark:text-blue-300">340/400</div>
+            <span class="text-xs text-slate-600 dark:text-slate-400">jami qaydlar</span>
+          </div>
+        </div>
+
+        <!-- Eng Namunali Amallar -->
+        <div class="space-y-2">
+          <div class="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+            <span>🌟 Eng Namunali Amallar</span>
+            <span class="text-xs text-slate-500 dark:text-slate-400">Seansda</span>
+          </div>
+          <div id="cycle-results-top-habits" class="space-y-1.5">
+            <!-- Dinamik generatsiya qilinadi -->
+          </div>
+        </div>
+
+        <!-- Tavsiya va Xulosa -->
+        <div class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 text-xs text-slate-600 dark:text-slate-300 flex items-start gap-2.5">
+          <span class="text-base shrink-0">💡</span>
+          <p id="cycle-results-advice" class="text-xs leading-relaxed">
+            Natijalaringiz arxivga saqlandi. Harakatni susaytirmasdan darhol yangi seansni boshlashingiz mumkin!
+          </p>
+        </div>
+
+        <!-- Tugmalar va Yangi Seans Boshlash Qismi -->
+        <div class="space-y-3 pt-1 border-t border-slate-100 dark:border-slate-800">
+          
+          <!-- Yangi Seans Sozlamalari (Kun kiritish: min 0, max 40) -->
+          <div class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 space-y-2.5">
+            <div class="flex items-center justify-between text-xs font-bold text-slate-800 dark:text-white">
+              <span>🚀 Yangi Seans Boshlash</span>
+              <span id="modal-active-seans-badge" class="px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 text-xs font-bold">
+                Faol: 1/3
+              </span>
+            </div>
+
+            <!-- Mavjud seanslarni tanlash tugmalari -->
+            <div id="cycle-results-seans-tabs-box" class="space-y-1 p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+              <div class="text-xs font-bold text-slate-600 dark:text-slate-400 flex items-center justify-between">
+                <span>Mavjud seansni tanlash:</span>
+                <span class="text-xs text-slate-400">O'tish uchun bosing</span>
+              </div>
+              <div id="cycle-results-seans-tabs" class="flex flex-wrap gap-1">
+                <!-- Seans tugmalari -->
+              </div>
+            </div>
+
+            <div class="space-y-1">
+              <label for="modal-new-seans-name" class="text-xs font-semibold text-slate-700 dark:text-slate-300">Seans nomi (ixtiyoriy):</label>
+              <input type="text" id="modal-new-seans-name" autocomplete="off" placeholder="Masalan: 2-seans yoki yangi reja" 
+                class="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-800 dark:text-white focus:outline-emerald-500">
+            </div>
+
+            <div class="space-y-1">
+              <div class="flex items-center justify-between">
+                <label for="modal-new-seans-days" class="text-xs font-semibold text-slate-500 dark:text-slate-400">Davomiyligi (kun kiritish: 1 — 40):</label>
+                <span id="modal-days-preview" class="text-xs font-extrabold text-emerald-600 dark:text-emerald-400">40 kun</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <input type="number" id="modal-new-seans-days" inputmode="numeric" min="1" max="40" value="40"
+                  oninput="updateModalDaysPreview(this.value)"
+                  class="w-20 px-2.5 py-1.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-center font-bold text-xs text-slate-800 dark:text-white focus:outline-emerald-500">
+                <div class="flex flex-wrap gap-1">
+                  <button type="button" onclick="setModalSeansDays(7)" class="min-w-[44px] min-h-[44px] px-2.5 py-2 rounded-xl bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-xs font-bold">7k</button>
+                  <button type="button" onclick="setModalSeansDays(14)" class="min-w-[44px] min-h-[44px] px-2.5 py-2 rounded-xl bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-xs font-bold">14k</button>
+                  <button type="button" onclick="setModalSeansDays(21)" class="min-w-[44px] min-h-[44px] px-2.5 py-2 rounded-xl bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-xs font-bold">21k</button>
+                  <button type="button" onclick="setModalSeansDays(40)" class="min-w-[44px] min-h-[44px] px-2.5 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold">40k</button>
+                </div>
+              </div>
+              <p class="text-xs text-slate-600 dark:text-slate-400 pt-0.5">
+                ⚡ Oldingi seansni tugatish shart emas! Bir vaqtda 3 tagacha seans faol ishlaydi.
+              </p>
+            </div>
+
+            <button type="button" onclick="startNewCycleFromModal()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold text-xs shadow-md shadow-emerald-600/30 flex items-center justify-center gap-1.5 active:scale-95 transition-all">
+              <span>🚀 Yangi Seansni Boshlash</span>
+            </button>
+          </div>
+
+          <!-- Tugatish / Arxivga o'tkazish va Yopish tugmalari -->
+          <div class="flex gap-2">
+            <button type="button" id="modal-archive-btn" onclick="archiveCurrentSeansAndClose()" class="flex-1 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-700 dark:text-amber-300 font-bold text-xs transition-colors">
+              📦 Seansni yakunlab arxivlash
+            </button>
+            <button type="button" onclick="closeCycleResultsModal()" class="flex-1 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 font-semibold text-xs transition-colors">
+              Yopish
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- YANGI SEANS OCHISH MODALI (1 dan 40 kungacha, maks 3 ta faol) -->
+    <div id="create-seans-modal" class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="create-seans-modal-title">
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-sm w-full p-5 shadow-2xl space-y-4 animate-scale-in">
+        
+        <div class="text-center space-y-1">
+          <div class="w-12 h-12 mx-auto rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-2xl" aria-hidden="true">
+            ⚡
+          </div>
+          <h3 id="create-seans-modal-title" class="font-bold text-base text-slate-800 dark:text-white">
+            Yangi Seans Boshlash
+          </h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400" id="create-seans-slots-info">
+            Bir vaqtning o'zida 3 tagacha seans faol ishlashi mumkin.
+          </p>
+        </div>
+
+        <!-- Faol seanslarni tanlash tugmalari (Mavjud seansga o'tish) -->
+        <div id="create-modal-existing-seans-box" class="space-y-1.5 p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80">
+          <div class="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
+            <span>Mavjud seansni tanlash:</span>
+            <span class="text-xs text-slate-500 dark:text-slate-400">O'tish uchun bosing</span>
+          </div>
+          <div id="create-modal-seans-tabs" class="flex flex-wrap gap-1.5">
+            <!-- [ ⚡ 1-seans ] [ ⚡ 2-seans ] -->
+          </div>
+        </div>
+
+        <!-- Seans nomi -->
+        <div class="space-y-1">
+          <label for="new-seans-name-input" class="text-xs font-bold text-slate-700 dark:text-slate-300">Seans Nomi</label>
+          <input type="text" id="new-seans-name-input" placeholder="Masalan: 2-seans yoki yangi reja" 
+            class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-800 dark:text-white focus:outline-emerald-500">
+        </div>
+
+        <!-- Kunlar soni (min 1, max 40) -->
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between">
+            <label for="new-seans-days-input" class="text-xs font-bold text-slate-700 dark:text-slate-300">
+              Davomiyligi (kunlar soni: 1 — 40)
+            </label>
+            <span id="new-seans-days-preview" class="text-xs font-extrabold text-emerald-600 dark:text-emerald-400">40 kun</span>
+          </div>
+          
+          <div class="flex items-center gap-2">
+            <input type="number" id="new-seans-days-input" inputmode="numeric" min="1" max="40" value="40" 
+              oninput="updateSeansDaysPreview(this.value)"
+              class="w-24 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-center text-sm font-extrabold text-slate-800 dark:text-white focus:outline-emerald-500">
+            <span class="text-xs text-slate-500">kun (maks 40)</span>
+          </div>
+
+          <!-- Tezkor tanlov tugmalari -->
+          <div class="flex flex-wrap gap-1.5 pt-1">
+            <button type="button" onclick="setNewSeansDays(7)" class="min-w-[44px] min-h-[44px] px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-emerald-50 text-slate-700 dark:text-slate-200 text-xs font-semibold transition-colors">7 kun</button>
+            <button type="button" onclick="setNewSeansDays(14)" class="min-w-[44px] min-h-[44px] px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-emerald-50 text-slate-700 dark:text-slate-200 text-xs font-semibold transition-colors">14 kun</button>
+            <button type="button" onclick="setNewSeansDays(21)" class="min-w-[44px] min-h-[44px] px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-emerald-50 text-slate-700 dark:text-slate-200 text-xs font-semibold transition-colors">21 kun</button>
+            <button type="button" onclick="setNewSeansDays(30)" class="min-w-[44px] min-h-[44px] px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-emerald-50 text-slate-700 dark:text-slate-200 text-xs font-semibold transition-colors">30 kun</button>
+            <button type="button" onclick="setNewSeansDays(40)" class="min-w-[44px] min-h-[44px] px-3 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold transition-colors">40 kun</button>
+          </div>
+        </div>
+
+        <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 text-xs text-slate-600 dark:text-slate-300 flex items-start gap-2">
+          <span class="text-sm" aria-hidden="true">💡</span>
+          <span>Oldingi seansni tugatish shart emas! Har bir seans alohida kun hisobiga ega bo'ladi.</span>
+        </div>
+
+        <div class="space-y-2 pt-1">
+          <button type="button" onclick="confirmCreateSeansModal()" class="w-full py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold text-xs shadow-md shadow-emerald-600/30 flex items-center justify-center gap-2 active:scale-95 transition-all">
+            <span>🚀 Seansni boshlash</span>
+          </button>
+          <button type="button" onclick="closeCreateSeansModal()" class="w-full py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 font-semibold text-xs transition-colors">
+            Bekor qilish
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Xavfsiz Nollashtirish Modali (BOSQICH 4 & 8) -->
+    <div id="reset-confirm-modal" class="hidden fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="reset-modal-title">
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-sm w-full p-5 shadow-2xl space-y-4 animate-scale-in">
+        <div class="flex items-start justify-between">
+          <div class="flex items-center gap-2.5">
+            <div class="w-10 h-10 rounded-2xl bg-rose-500/15 text-rose-600 dark:text-rose-400 flex items-center justify-center text-xl shrink-0" aria-hidden="true">
+              ⚠️
+            </div>
+            <div>
+              <h3 id="reset-modal-title" class="font-bold text-sm text-slate-800 dark:text-white">
+                Barcha ma'lumotlarni o'chirish
+              </h3>
+              <p class="text-xs text-rose-600 dark:text-rose-400 font-medium">Bu amalni orqaga qaytarib bo'lmaydi</p>
+            </div>
+          </div>
+          <button type="button" onclick="closeResetConfirmModal()" class="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer" aria-label="Yopish">
+            <i data-feather="x" class="w-5 h-5" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <div class="p-3 rounded-2xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/40 text-xs text-rose-800 dark:text-rose-200 space-y-1.5">
+          <div class="font-bold flex items-center gap-1">
+            <span aria-hidden="true">🗑️</span>
+            <span>Quyidagilar to'liq o'chiriladi:</span>
+          </div>
+          <ul class="text-xs list-disc list-inside space-y-0.5 text-rose-700 dark:text-rose-300">
+            <li>Barcha faol va arxivlangan seanslar</li>
+            <li>Barcha 40 kunlik qaydlar va amallar</li>
+            <li>Tasbeh hisoblagichlari va qo'shimcha zikrlar</li>
+            <li>Profil nomi, jinsi va sozlamalari</li>
+          </ul>
+        </div>
+
+        <div class="space-y-1.5">
+          <label for="reset-confirm-input" class="text-xs font-semibold text-slate-700 dark:text-slate-300">
+            Tasdiqlash uchun maydonga <strong class="text-rose-600 dark:text-rose-400 select-all">O'CHIRISH</strong> so'zini yozing:
+          </label>
+          <input type="text" id="reset-confirm-input" placeholder="O'CHIRISH" autocomplete="off"
+            oninput="checkResetConfirmationWord(this.value)"
+            class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider focus:outline-rose-500">
+          <p id="reset-confirm-hint" class="text-xs text-slate-500 dark:text-slate-400">Maydon to'liq mos kelmaguncha tugma faollashmaydi.</p>
+        </div>
+
+        <div class="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/40 text-xs text-amber-800 dark:text-amber-300 flex items-center gap-2">
+          <span aria-hidden="true">💾</span>
+          <span>O'chirishdan oldin avtomatik JSON zaxira fayl yuklab olinadi va oxirgi holat saqlanadi.</span>
+        </div>
+
+        <div class="flex gap-2.5 pt-1">
+          <button type="button" onclick="closeResetConfirmModal()" class="flex-1 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-xs transition-colors cursor-pointer">
+            Bekor qilish
+          </button>
+          <button type="button" id="reset-confirm-submit-btn" disabled onclick="executeSafeReset()" class="flex-1 py-2.5 rounded-xl bg-rose-600 text-white font-extrabold text-xs shadow-md transition-all opacity-40 cursor-not-allowed">
+            O'chirish
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="app.js?v=8.0"></script>
+</body>
+</html>

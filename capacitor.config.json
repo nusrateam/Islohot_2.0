@@ -1,0 +1,19 @@
+{
+  "appId": "uz.islohot.app",
+  "appName": "Islohot",
+  "webDir": "www",
+  "backgroundColor": "#0b1512",
+  "server": {
+    "androidScheme": "https",
+    "cleartext": true
+  },
+  "android": {
+    "allowMixedContent": true
+  },
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_launcher_round",
+      "iconColor": "#059669"
+    }
+  }
+}
