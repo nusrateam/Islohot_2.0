@@ -114,6 +114,7 @@ let appState = {
   vibrationEnabled: true,
   darkMode: false,
   startDate: new Date().toISOString().split('T')[0],
+  lastActiveDate: null,
   profileName: '',
   profileCompleted: false,
   userGender: 'ayol',
@@ -127,10 +128,152 @@ let appState = {
 // LocalStorage kaliti (v9: toza boshlang'ich default holati va doimiy ma'lumotlar saqlanishi)
 const STORAGE_KEY = 'islohot_tracker_data_v10';
 
+// ==========================================
+// KUN ALMASHINUVI VA SALOVATLARNI YANGILASH (0 GA TUSHIRISH)
+// ==========================================
+function getTodayDateString() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function getDaysDiff(dateStr1, dateStr2) {
+  if (!dateStr1 || !dateStr2) return 0;
+  const p1 = String(dateStr1).split('-').map(Number);
+  const p2 = String(dateStr2).split('-').map(Number);
+  if (p1.length < 3 || p2.length < 3 || isNaN(p1[0]) || isNaN(p2[0])) return 0;
+  const utc1 = Date.UTC(p1[0], p1[1] - 1, p1[2]);
+  const utc2 = Date.UTC(p2[0], p2[1] - 1, p2[2]);
+  return Math.floor((utc2 - utc1) / (1000 * 60 * 60 * 24));
+}
+
+function getDateDaysAgo(baseDateStr, daysAgo) {
+  const p = String(baseDateStr || getTodayDateString()).split('-').map(Number);
+  const date = new Date(Date.UTC(p[0], p[1] - 1, p[2]));
+  date.setUTCDate(date.getUTCDate() - (daysAgo || 0));
+  const ry = date.getUTCFullYear();
+  const rm = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const rd = String(date.getUTCDate()).padStart(2, '0');
+  return `${ry}-${rm}-${rd}`;
+}
+
+function checkAndApplyDayTransition() {
+  const todayStr = getTodayDateString();
+  const lastDate = appState.lastActiveDate || localStorage.getItem('islohot_last_active_date');
+
+  // Birinchi ishga tushganda bugungi sanani o'rnatib qo'yamiz
+  if (!lastDate) {
+    appState.lastActiveDate = todayStr;
+    localStorage.setItem('islohot_last_active_date', todayStr);
+    saveData();
+    return false;
+  }
+
+  // Agar sana o'zgargan bo'lsa (ertasi kuni yoki keyingi kunlar kelgan bo'lsa)
+  if (lastDate !== todayStr) {
+    const daysPassed = getDaysDiff(lastDate, todayStr);
+    if (daysPassed > 0) {
+      console.log(`[Islohot] Yangi kun boshlandi: ${lastDate} -> ${todayStr} (${daysPassed} kun o'tdi)`);
+      ensureCyclesStructure();
+
+      // 1. Faol seanslarning kunini keyingi kunga o'tkazish
+      (appState.cycles || []).forEach(cycle => {
+        if (cycle.status === 'active') {
+          const totalDays = cycle.totalDays || 40;
+          const oldDay = cycle.currentDay || 1;
+          const newDay = Math.min(totalDays, oldDay + daysPassed);
+          cycle.currentDay = newDay;
+          if (!cycle.startDate) {
+            cycle.startDate = getDateDaysAgo(todayStr, newDay - 1);
+          }
+        }
+      });
+
+      const activeCycle = getActiveCycle();
+      if (activeCycle) {
+        appState.currentDay = activeCycle.currentDay || 1;
+      } else {
+        appState.currentDay = Math.min(40, (appState.currentDay || 1) + daysPassed);
+      }
+
+      // 2. Salovatlar va barcha tasbeh/zikrlar hisoblagichini 0 ga tushirish
+      if (Array.isArray(appState.customZikrs)) {
+        appState.customZikrs.forEach(zikr => {
+          zikr.count = 0;
+        });
+      }
+      if (appState.tasbeh && typeof appState.tasbeh === 'object') {
+        Object.keys(appState.tasbeh).forEach(k => {
+          if (appState.tasbeh[k] && typeof appState.tasbeh[k] === 'object') {
+            appState.tasbeh[k].count = 0;
+          }
+        });
+      }
+
+      // 3. Yangi sanani saqlash
+      appState.lastActiveDate = todayStr;
+      localStorage.setItem('islohot_last_active_date', todayStr);
+      saveData();
+
+      // 4. Interfeysni yangi kunga moslab chizish
+      renderApp();
+      featherIconsReplace();
+      return true;
+    } else {
+      appState.lastActiveDate = todayStr;
+      localStorage.setItem('islohot_last_active_date', todayStr);
+      saveData();
+    }
+  }
+  return false;
+}
+
+function advanceToNextDayManually() {
+  ensureCyclesStructure();
+  const activeCycle = getActiveCycle();
+  if (!activeCycle) {
+    alert("Hozirda faol seans mavjud emas. Avval yangi seans boshlang.");
+    return;
+  }
+  const totalDays = activeCycle.totalDays || 40;
+  const curDay = activeCycle.currentDay || 1;
+  if (curDay >= totalDays) {
+    alert(`Ushbu seansning barcha ${totalDays} kuni to'liq yakunlangan! Natijalarni ko'rishingiz mumkin.`);
+    finishCycleAndShowResults();
+    return;
+  }
+  const nextDay = curDay + 1;
+  if (confirm(`Bugungi kun amallari yakunlandi.\n\n${nextDay}-kunga o'tib, salovat va zikrlarni yangidan (0 dan) boshlaysizmi?`)) {
+    activeCycle.currentDay = nextDay;
+    appState.currentDay = nextDay;
+
+    // Salovat va zikrlarni 0 ga tushirish
+    if (Array.isArray(appState.customZikrs)) {
+      appState.customZikrs.forEach(z => { z.count = 0; });
+    }
+    if (appState.tasbeh && typeof appState.tasbeh === 'object') {
+      Object.keys(appState.tasbeh).forEach(k => {
+        if (appState.tasbeh[k] && typeof appState.tasbeh[k] === 'object') {
+          appState.tasbeh[k].count = 0;
+        }
+      });
+    }
+
+    appState.lastActiveDate = getTodayDateString();
+    localStorage.setItem('islohot_last_active_date', appState.lastActiveDate);
+    saveData();
+    renderApp();
+    featherIconsReplace();
+  }
+}
+
 // Ilovani yuklash
 function initApp() {
   try {
     loadData();
+    checkAndApplyDayTransition();
     applyDarkMode();
     setupEventListeners();
     renderApp();
@@ -354,8 +497,29 @@ function loadData() {
   if (!Array.isArray(appState.customZikrs)) {
     appState.customZikrs = [];
   }
+  if (appState.customZikrs.length === 0) {
+    appState.customZikrs = [
+      {
+        id: 'zikr_salovat_default',
+        name: "Salovat",
+        text: "Allohumma solli 'ala sayyidina Muhammad",
+        target: 100,
+        count: 0
+      },
+      {
+        id: 'zikr_istigfor_default',
+        name: "Istig'for",
+        text: "Astag'firulloh al-Aziym va atubu ilayh",
+        target: 100,
+        count: 0
+      }
+    ];
+  }
   if (!appState.activeTasbehId && appState.customZikrs.length > 0) {
     appState.activeTasbehId = appState.customZikrs[0].id;
+  }
+  if (!appState.lastActiveDate) {
+    appState.lastActiveDate = localStorage.getItem('islohot_last_active_date') || getTodayDateString();
   }
 
   // Sikllar va Matrix strukturasini to'ldiramiz
@@ -370,7 +534,8 @@ function initDefaultState() {
   appState.profileName = '';
   appState.profileCompleted = false;
   appState.reminderEnabled = true;
-  appState.startDate = new Date().toISOString().split('T')[0];
+  appState.startDate = getTodayDateString();
+  appState.lastActiveDate = getTodayDateString();
   appState.matrix = {};
   appState.cycles = [];
   appState.activeCycleId = null;
@@ -3274,8 +3439,15 @@ function switchTab(tabName) {
   });
 
   // Tab bo'yicha maxsus yangilanish
+  if (tabName === 'today') {
+    checkAndApplyDayTransition();
+    renderDailyView();
+  }
   if (tabName === 'matrix') renderMatrixView();
-  if (tabName === 'tasbeh') renderTasbehView();
+  if (tabName === 'tasbeh') {
+    checkAndApplyDayTransition();
+    renderTasbehView();
+  }
   if (tabName === 'stats') renderStatsView();
   if (tabName === 'settings') renderSettingsHabits();
 
@@ -3848,6 +4020,22 @@ function setupEventListeners() {
       }
     }
   });
+
+  // Kun almashinuvi hodisalari (Sahifaga qaytganda yoki yangi kunga o'tganda)
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      checkAndApplyDayTransition();
+    }
+  });
+
+  window.addEventListener('focus', () => {
+    checkAndApplyDayTransition();
+  });
+
+  // Har 30 soniyada tekshirib turish (yarim tunda ilova ochiq tursa ham avtomatik almashadi)
+  setInterval(() => {
+    checkAndApplyDayTransition();
+  }, 30000);
 }
 
 // ==========================================

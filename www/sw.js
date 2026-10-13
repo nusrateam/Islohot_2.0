@@ -1,4 +1,4 @@
-const CACHE_NAME = 'islohot-tracker-v11';
+const CACHE_NAME = 'islohot-tracker-v12';
 const ASSETS = [
   './',
   './index.html',
