@@ -129,8 +129,11 @@ let appState = {
 const STORAGE_KEY = 'islohot_tracker_data_v10';
 
 // ==========================================
-// KUN ALMASHINUVI VA SALOVATLARNI YANGILASH (0 GA TUSHIRISH)
+// TAQVIM VA KUNLARNI HAQIQIY VAQT BILAN 100% SINXRONLASH
 // ==========================================
+const UZ_MONTHS_SHORT = ['yan', 'fev', 'mar', 'apr', 'may', 'iyn', 'iyl', 'avg', 'sen', 'okt', 'noy', 'dek'];
+const UZ_WEEKDAYS_SHORT = ['Yak', 'Dush', 'Sesh', 'Chor', 'Pay', 'Jum', 'Shan'];
+
 function getTodayDateString() {
   const now = new Date();
   const year = now.getFullYear();
@@ -159,74 +162,109 @@ function getDateDaysAgo(baseDateStr, daysAgo) {
   return `${ry}-${rm}-${rd}`;
 }
 
+function getCycleDateForDay(cycle, dayNumber) {
+  const startDateStr = (cycle && cycle.startDate) || appState.startDate || getTodayDateString();
+  const p = String(startDateStr).split('-').map(Number);
+  const date = new Date(Date.UTC(p[0], p[1] - 1, p[2]));
+  date.setUTCDate(date.getUTCDate() + (dayNumber - 1));
+  const y = date.getUTCFullYear();
+  const m = date.getUTCMonth();
+  const d = date.getUTCDate();
+  const fullDate = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+  return {
+    year: y,
+    month: m + 1,
+    monthName: UZ_MONTHS_SHORT[m],
+    day: d,
+    weekday: UZ_WEEKDAYS_SHORT[date.getUTCDay()],
+    dateString: `${d}-${UZ_MONTHS_SHORT[m]}`,
+    fullDate: fullDate,
+    isToday: fullDate === getTodayDateString()
+  };
+}
+
+function getSynchronousCurrentDay(cycle) {
+  if (!cycle) return 1;
+  const startDateStr = cycle.startDate || appState.startDate || getTodayDateString();
+  const todayStr = getTodayDateString();
+  const diff = getDaysDiff(startDateStr, todayStr);
+  const totalDays = cycle.totalDays || 40;
+  if (diff < 0) return 1;
+  return Math.min(totalDays, diff + 1);
+}
+
+function syncActiveCyclesWithCalendar() {
+  ensureCyclesStructure();
+  let changed = false;
+
+  (appState.cycles || []).forEach(cycle => {
+    if (cycle.status === 'active') {
+      const syncDay = getSynchronousCurrentDay(cycle);
+      if (cycle.currentDay !== syncDay) {
+        cycle.currentDay = syncDay;
+        changed = true;
+      }
+    }
+  });
+
+  const activeCycle = getActiveCycle();
+  if (activeCycle) {
+    if (appState.currentDay !== activeCycle.currentDay) {
+      appState.currentDay = activeCycle.currentDay;
+      changed = true;
+    }
+  }
+
+  return changed;
+}
+
 function checkAndApplyDayTransition() {
   const todayStr = getTodayDateString();
   const lastDate = appState.lastActiveDate || localStorage.getItem('islohot_last_active_date');
 
-  // Birinchi ishga tushganda bugungi sanani o'rnatib qo'yamiz
+  // Birinchi marta ishga tushganda bugungi sanani saqlash va sinxronlash
   if (!lastDate) {
     appState.lastActiveDate = todayStr;
     localStorage.setItem('islohot_last_active_date', todayStr);
+    syncActiveCyclesWithCalendar();
     saveData();
     return false;
   }
 
-  // Agar sana o'zgargan bo'lsa (ertasi kuni yoki keyingi kunlar kelgan bo'lsa)
-  if (lastDate !== todayStr) {
-    const daysPassed = getDaysDiff(lastDate, todayStr);
-    if (daysPassed > 0) {
-      console.log(`[Islohot] Yangi kun boshlandi: ${lastDate} -> ${todayStr} (${daysPassed} kun o'tdi)`);
-      ensureCyclesStructure();
+  // Kunlar qolib ketmasligi uchun doimiy sinxronlash
+  const cyclesChanged = syncActiveCyclesWithCalendar();
 
-      // 1. Faol seanslarning kunini keyingi kunga o'tkazish
-      (appState.cycles || []).forEach(cycle => {
-        if (cycle.status === 'active') {
-          const totalDays = cycle.totalDays || 40;
-          const oldDay = cycle.currentDay || 1;
-          const newDay = Math.min(totalDays, oldDay + daysPassed);
-          cycle.currentDay = newDay;
-          if (!cycle.startDate) {
-            cycle.startDate = getDateDaysAgo(todayStr, newDay - 1);
-          }
+  // Agar sana o'zgargan bo'lsa (yangi kalendar kuni kelgan bo'lsa)
+  if (lastDate !== todayStr) {
+    console.log(`[Islohot] Yangi kun keldi: ${lastDate} -> ${todayStr}`);
+
+    // Salovatlar va barcha tasbeh/zikrlar hisoblagichini 0 ga tushirish
+    if (Array.isArray(appState.customZikrs)) {
+      appState.customZikrs.forEach(zikr => {
+        zikr.count = 0;
+      });
+    }
+    if (appState.tasbeh && typeof appState.tasbeh === 'object') {
+      Object.keys(appState.tasbeh).forEach(k => {
+        if (appState.tasbeh[k] && typeof appState.tasbeh[k] === 'object') {
+          appState.tasbeh[k].count = 0;
         }
       });
-
-      const activeCycle = getActiveCycle();
-      if (activeCycle) {
-        appState.currentDay = activeCycle.currentDay || 1;
-      } else {
-        appState.currentDay = Math.min(40, (appState.currentDay || 1) + daysPassed);
-      }
-
-      // 2. Salovatlar va barcha tasbeh/zikrlar hisoblagichini 0 ga tushirish
-      if (Array.isArray(appState.customZikrs)) {
-        appState.customZikrs.forEach(zikr => {
-          zikr.count = 0;
-        });
-      }
-      if (appState.tasbeh && typeof appState.tasbeh === 'object') {
-        Object.keys(appState.tasbeh).forEach(k => {
-          if (appState.tasbeh[k] && typeof appState.tasbeh[k] === 'object') {
-            appState.tasbeh[k].count = 0;
-          }
-        });
-      }
-
-      // 3. Yangi sanani saqlash
-      appState.lastActiveDate = todayStr;
-      localStorage.setItem('islohot_last_active_date', todayStr);
-      saveData();
-
-      // 4. Interfeysni yangi kunga moslab chizish
-      renderApp();
-      featherIconsReplace();
-      return true;
-    } else {
-      appState.lastActiveDate = todayStr;
-      localStorage.setItem('islohot_last_active_date', todayStr);
-      saveData();
     }
+
+    appState.lastActiveDate = todayStr;
+    localStorage.setItem('islohot_last_active_date', todayStr);
+    saveData();
+    renderApp();
+    featherIconsReplace();
+    return true;
+  } else if (cyclesChanged) {
+    saveData();
+    renderApp();
+    featherIconsReplace();
+    return true;
   }
+
   return false;
 }
 
@@ -998,7 +1036,7 @@ function renderDailyView() {
             <div class="flex items-center gap-2">
               <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
               <h3 class="font-black text-sm text-slate-800 dark:text-white">${escapeHtml(cycle.title)}</h3>
-              <span class="text-xs font-mono text-slate-500 dark:text-slate-400">(${cDay}/${cTotalDays}-kun, ${cCalDate}-sana)</span>
+              <span class="text-xs font-mono text-slate-500 dark:text-slate-400">(${cDay}/${cTotalDays}-kun, ${getCycleDateForDay(cycle, cDay).dateString})</span>
             </div>
             <div class="flex items-center gap-2">
               <span class="text-xs font-bold ${cPct === 100 ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-600 dark:text-slate-300'}">${cPct}% (${cDone}/${cHabits.length})</span>
@@ -1078,7 +1116,9 @@ function renderDailyView() {
   const totalDays = activeCycle.totalDays || 40;
   const day = Math.min(Math.max(1, appState.currentDay), totalDays);
   appState.currentDay = day;
-  const calendarDateNumber = appState.calendarDays[day - 1] || day;
+  const dateInfo = getCycleDateForDay(activeCycle, day);
+  const syncTodayDay = getSynchronousCurrentDay(activeCycle);
+  const isToday = (day === syncTodayDay);
 
   if (sliderTitle) {
     sliderTitle.innerText = `${activeCycle.title || `${activeCycle.cycleNumber}-seans`}: Taqvim`;
@@ -1092,10 +1132,15 @@ function renderDailyView() {
   const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
 
   if (dateLabel) {
-    dateLabel.innerText = `${activeCycle.title || `${activeCycle.cycleNumber}-seans`}: ${day}-kun / ${totalDays} kun (Oyning ${calendarDateNumber}-sanasi)`;
+    const todayMarker = isToday ? " · Bugun" : "";
+    dateLabel.innerText = `${activeCycle.title || `${activeCycle.cycleNumber}-seans`}: ${day}-kun / ${totalDays} kun (${dateInfo.dateString}, ${dateInfo.weekday}${todayMarker})`;
   }
   if (subtitleLabel) {
-    subtitleLabel.innerText = "Kunlik vazifalarni ixlos bilan ado eting";
+    if (!isToday) {
+      subtitleLabel.innerHTML = `Siz ${day}-kun tarixini ko'rmoqdasiz. <button type="button" onclick="selectDay(${syncTodayDay})" class="underline font-bold text-emerald-600 dark:text-emerald-400 cursor-pointer">Bugunga o'tish (${syncTodayDay}-kun) &rarr;</button>`;
+    } else {
+      subtitleLabel.innerText = "Kunlik vazifalarni ixlos bilan ado eting";
+    }
   }
   if (pctLabel) {
     pctLabel.innerText = `${pct}%`;
@@ -1258,13 +1303,16 @@ function renderDaySelector() {
   }
   const totalDays = activeCycle.totalDays || 40;
 
+  const syncTodayDay = getSynchronousCurrentDay(activeCycle);
+
   let html = '';
   for (let i = 1; i <= totalDays; i++) {
     const isSelected = i === appState.currentDay;
+    const isRealToday = i === syncTodayDay;
+    const dateInfo = getCycleDateForDay(activeCycle, i);
     const completedCount = getCompletedCountForDay(i);
     const isAllDone = completedCount === appState.habits.length && appState.habits.length > 0;
     const hasSome = completedCount > 0 && !isAllDone;
-    const calDate = appState.calendarDays[i - 1] || i;
 
     let badgeClass = 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-transparent';
     if (isSelected) {
@@ -1276,10 +1324,11 @@ function renderDaySelector() {
     }
 
     html += `
-      <button type="button" onclick="selectDay(${i})" class="shrink-0 flex flex-col items-center justify-center min-w-[50px] h-16 px-1 rounded-xl border transition-all ${badgeClass} text-center">
-        <span class="text-xs uppercase font-bold tracking-tight opacity-75">Kun</span>
-        <span class="text-sm font-extrabold">${i}</span>
-        <span class="text-xs opacity-70">${calDate}-sana</span>
+      <button type="button" onclick="selectDay(${i})" class="shrink-0 flex flex-col items-center justify-center min-w-[56px] h-17 px-1 rounded-xl border transition-all ${badgeClass} text-center relative cursor-pointer">
+        ${isRealToday ? `<span class="absolute -top-1 px-1.5 py-0.2 rounded-full bg-amber-400 text-slate-900 font-black text-[9px] uppercase tracking-tighter shadow-sm">Bugun</span>` : ''}
+        <span class="text-[10px] uppercase font-bold tracking-tight opacity-75">${dateInfo.weekday}</span>
+        <span class="text-sm font-extrabold leading-tight">${i}-kun</span>
+        <span class="text-[10px] font-semibold opacity-85 mt-0.5">${dateInfo.dateString}</span>
       </button>
     `;
   }
@@ -1440,19 +1489,24 @@ function renderMatrixView() {
     </th>
   `;
 
+  const syncTodayDay = getSynchronousCurrentDay(viewingCycle);
   for (let d = 1; d <= totalDays; d++) {
     const isCurrent = isActive && (d === appState.currentDay);
-    const calDate = appState.calendarDays[d - 1] || d;
+    const isRealToday = isActive && (d === syncTodayDay);
+    const dateInfo = getCycleDateForDay(viewingCycle, d);
     headerHtml += `
-      <th onclick="${isActive ? `selectDay(${d})` : ''}" class="p-2 text-center text-xs font-semibold border-b border-r border-slate-200 dark:border-slate-700 min-w-[42px] transition-colors ${
+      <th onclick="${isActive ? `selectDay(${d})` : ''}" class="p-1.5 text-center text-xs font-semibold border-b border-r border-slate-200 dark:border-slate-700 min-w-[46px] transition-colors ${
         isActive ? 'cursor-pointer' : ''
       } ${
         isCurrent 
-          ? 'bg-emerald-500 text-white font-extrabold' 
-          : 'bg-slate-50 dark:bg-slate-800/90 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+          ? 'bg-emerald-600 text-white font-extrabold shadow-sm' 
+          : isRealToday
+            ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-200 font-bold border-emerald-400'
+            : 'bg-slate-50 dark:bg-slate-800/90 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
       }">
-        <div>№${d}</div>
-        <div class="text-xs font-normal opacity-80">${calDate}</div>
+        <div class="text-[9px] uppercase font-bold opacity-75">${dateInfo.weekday}</div>
+        <div class="font-extrabold text-[13px] leading-tight">№${d}</div>
+        <div class="text-[9px] font-semibold opacity-85 mt-0.5">${dateInfo.dateString}</div>
       </th>
     `;
   }
@@ -3104,9 +3158,9 @@ function exportToCSV() {
   });
 
   // Kun sanalari
-  let rowKun = ["kun "];
+  let rowKun = ["Sana"];
   for (let d = 1; d <= totalDays; d++) {
-    rowKun.push(appState.calendarDays[d - 1] || d);
+    rowKun.push(getCycleDateForDay(viewingCycle, d).dateString);
   }
   csvContent += rowKun.join(",") + "\n";
 
@@ -3565,8 +3619,9 @@ function renderSettingsHabits() {
 
   if (startDateInfo) {
     const totalDays = targetCycle.totalDays || 40;
-    const curDay = targetCycle.currentDay || 1;
-    startDateInfo.innerText = `Joriy kun: ${curDay}/${totalDays}-kun`;
+    const curDay = getSynchronousCurrentDay(targetCycle);
+    const dateInfo = getCycleDateForDay(targetCycle, curDay);
+    startDateInfo.innerText = `Joriy kun: ${curDay}/${totalDays}-kun (${dateInfo.dateString}, ${dateInfo.weekday})`;
   }
 
   if (notesInput) {
@@ -3783,29 +3838,35 @@ function handleStartDateChange(val) {
   const target = getSettingsCycle();
   if (target) {
     target.startDate = val;
+    target.currentDay = getSynchronousCurrentDay(target);
     if (target.id === appState.activeCycleId) {
       appState.startDate = val;
+      appState.currentDay = target.currentDay;
     }
   } else {
     appState.startDate = val;
+    appState.currentDay = getSynchronousCurrentDay({ startDate: val, totalDays: 40 });
   }
   saveData();
   renderApp();
 }
 
 function setStartDateToday() {
-  const today = new Date().toISOString().split('T')[0];
+  const today = getTodayDateString();
   const target = getSettingsCycle();
   if (target) {
     target.startDate = today;
+    target.currentDay = 1;
     if (target.id === appState.activeCycleId) {
       appState.startDate = today;
+      appState.currentDay = 1;
     }
     saveData();
     renderApp();
     alert(`${target.title} uchun boshlanish sanasi bugungi kunga (${today}) o'rnatildi!`);
   } else {
     appState.startDate = today;
+    appState.currentDay = 1;
     saveData();
     renderApp();
     alert(`Boshlanish sanasi bugungi kunga (${today}) o'rnatildi!`);
